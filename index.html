@@ -3,38 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StartGo Pro - FINAL MODIFIÉ</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Chrono Neo</title>
     <style>
-        :root { --accent: #ff4757; --text: #1e293b; }
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; color: var(--text); }
-        .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; border: 1px solid white; box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
-        input, button, select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
-        button { background: var(--text); color: white; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .btn-accent { background: var(--accent); }
-        
-        #auth-section { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #coach-view { display: none; height: 100vh; grid-template-columns: 280px 1fr; }
-        #athlete-view { display: none; padding: 20px; max-width: 450px; margin: auto; }
-        
-        .sidebar { background: white; padding: 20px; border-right: 1px solid #e2e8f0; }
-        .main { padding: 40px; overflow-y: auto; }
-        .ath-item { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-weight: 700; border: 1px solid #edf2f7; }
-        .ath-item:hover { border-color: var(--accent); color: var(--accent); }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        :root {
+            --bg: #f0f2f5; --glass: rgba(255, 255, 255, 0.7); --text: #0f172a;
+            --accent: #000; --sub: #64748b; --shadow: rgba(0,0,0,0.05);
+        }
+        [data-theme="dark"] {
+            --bg: #000; --glass: rgba(30, 41, 59, 0.7); --text: #f8fafc;
+            --accent: #fff; --sub: #94a3b8; --shadow: rgba(255,255,255,0.02);
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); color: var(--text);
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; min-height: 100vh; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Header & Theme */
+        .top-bar { width: 100%; max-width: 400px; display: flex; justify-content: space-between; padding: 30px 20px; box-sizing: border-box; }
+        .theme-toggle { background: var(--glass); border: 1px solid var(--shadow); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--text); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Main Card */
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            width: 90%; max-width: 380px; border-radius: 40px; padding: 40px 20px;
+            box-shadow: 0 20px 40px var(--shadow); border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; position: relative; overflow: hidden;
+        }
+
+        #badge { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--sub); margin-bottom: 20px; display: block; }
+
+        /* Timer Display */
+        .display { margin: 20px 0; }
+        #time { font-size: 6rem; font-weight: 200; letter-spacing: -4px; line-height: 1; }
+        .unit { font-size: 1.5rem; font-weight: 300; color: var(--sub); margin-left: 5px; }
+
+        /* Settings */
+        .slider-box { margin: 30px 0; padding: 0 20px; }
+        input[type=range] { width: 100%; height: 4px; background: var(--sub); border-radius: 5px; appearance: none; outline: none; }
+        input[type=range]::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 3px solid var(--bg); }
+        .dist-label { font-size: 0.8rem; font-weight: 500; margin-bottom: 10px; display: block; color: var(--sub); }
+
+        /* Buttons */
+        #mainBtn {
+            width: 80%; padding: 20px; border-radius: 50px; border: none;
+            background: var(--accent); color: var(--bg);
+            font-size: 0.9rem; font-weight: 700; letter-spacing: 1px;
+            cursor: pointer; transition: 0.3s;
+        }
+        #mainBtn:active { transform: scale(0.95); opacity: 0.8; }
+
+        /* Stats Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; margin: 30px 0; border-top: 1px solid var(--shadow); padding-top: 20px; }
+        .stat-v { font-size: 1.2rem; font-weight: 600; display: block; }
+        .stat-l { font-size: 0.6rem; font-weight: 700; color: var(--sub); text-transform: uppercase; }
+
+        /* Remote / Hidden Tools */
+        .remote { margin-top: 30px; display: flex; gap: 10px; opacity: 0.3; transition: 0.3s; }
+        .remote:hover { opacity: 1; }
+        .btn-s { background: none; border: 1px solid var(--sub); color: var(--text); padding: 8px 15px; border-radius: 12px; font-size: 0.6rem; cursor: pointer; }
+
+        /* History */
+        .history { width: 90%; max-width: 380px; margin-top: 40px; }
+        .h-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--shadow); font-size: 0.85rem; }
+        .h-time { font-weight: 700; }
+        .h-speed { color: var(--sub); }
     </style>
 </head>
 <body>
 
-    <div id="auth-section">
-        <div class="glass" style="width: 340px; text-align: center;">
-            <h1 style="margin:0 0 20px;">STARTGO<span style="color:var(--accent)">.</span></h1>
-            <div id="signup-box" style="display:none;">
-                <input type="text" id="name" placeholder="Prénom Nom">
+    <div class="top-bar">
+        <div style="font-weight: 900; letter-spacing: -1px;">CHRONO<span style="color:var(--sub)">.</span></div>
+        <button class="theme-toggle" onclick="toggleTheme()">Mode Night</button>
+    </div>
+
+    <div class="glass-card">
+        <span id="badge">Standby</span>
+        
+        <div class="display">
+            <span id="time">0.00</span><span class="unit">s</span>
+        </div>
+
+        <div class="grid">
+            <div>
+                <span class="stat-l">Vitesse max</span>
+                <span id="speed" class="stat-v">0.0 <small>km/h</small></span>
+            </div>
+            <div>
+                <span class="stat-l">Réaction</span>
+                <span id="react" class="stat-v">0.00 <small>s</small></span>
+            </div>
+        </div>
+
+        <div class="slider-box">
+            <span class="dist-label">Distance de test : <b id="d-val">10</b>m</span>
+            <input type="range" id="dist" min="5" max="100" value="10" oninput="document.getElementById('d-val').innerText=this.value">
+        </div>
+
+        <button id="mainBtn" onclick="initSession()">START</button>
+
+        <div class="remote">
+            <button class="btn-s" onclick="trigger('foot')">BOOT</button>
+            <button class="btn-s" onclick="trigger('finish')">STOP</button>
+        </div>
+    </div>
+
+    <div class="history" id="history"></div>
+
+    <script>
+        let state = "IDLE", start, timer, distance = 10;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function toggleTheme() {
+            const b = document.body;
+            const isDark = b.getAttribute('data-theme') === 'dark';
+            b.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.querySelector('.theme-toggle').innerText = isDark ? 'Mode Night' : 'Mode Day';
+        }
+
+        function beep(f, d) {
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.frequency.value = f; o.start(); setTimeout(() => o.stop(), d);
+        }
+
+        function initSession() {
+            state = "WAIT";
+            document.getElementById('badge').innerText = "Hold on...";
+            document.getElementById('mainBtn').style.opacity = "0.3";
+            
+            setTimeout(() => {
+                if(state !== "WAIT") return;
+                beep(1000, 400);
+                start = performance.now();
+                state = "RUN";
+                document.getElementById('badge').innerText = "Running";
+                timer = setInterval(() => {
+                    document.getElementById('time').innerText = ((performance.now()-start)/1000).toFixed(2);
+                }, 40);
+            }, 1500 + Math.random() * 2000);
+        }
+
+        function trigger(type) {
+            if(state !== "RUN") return;
+            if(type === 'foot') {
+                const r = (performance.now() - start)/1000;
+                document.getElementById('react').innerHTML = `${r.toFixed(2)} <small>s</small>`;
+            } else {
+                clearInterval(timer);
+                const t = parseFloat(document.getElementById('time').innerText);
+                const d = document.getElementById('dist').value;
+                const v = ((d / t) * 3.6).toFixed(1);
+                document.getElementById('speed').innerHTML = `${v} <small>km/h</small>`;
+                addHistory(t, v);
+                reset();
+            }
+        }
+
+        function reset() {
+            state = "IDLE";
+            document.getElementById('badge').innerText = "Finished";
+            document.getElementById('mainBtn').style.opacity = "1";
+        }
+
+        function addHistory(t, v) {
+            const h = document.getElementById('history');
+            const row = document.createElement('div');
+            row.className = 'h-row';
+            row.innerHTML = `<span class="h-time">${t}s</span> <span class="h-speed">${v} km/h</span>`;
+            h.prepend(row);
+        }
+    </script>
+</body>
+</html>                <input type="text" id="name" placeholder="Prénom Nom">
                 <select id="role"><option value="athlete">Athlète</option><option value="coach">Coach</option></select>
             </div>
             <input type="email" id="email" placeholder="Email">
