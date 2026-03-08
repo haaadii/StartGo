@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StartGo - Login</title>
+    <title>StartGo - Login & Setup</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
-            --bg: #e2e8f0;
-            --glass: rgba(255, 255, 255, 0.5);
+            --bg: #f0f2f5;
+            --glass: rgba(255, 255, 255, 0.6);
             --text: #1e293b;
             --accent: #ff4757;
+            --sub: #64748b;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; color: var(--text);
+            height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center;
+            color: var(--text);
         }
 
         .auth-card {
@@ -27,49 +29,60 @@
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255,255,255,0.7);
-            padding: 40px; border-radius: 40px; width: 90%; max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05); text-align: center;
+            padding: 40px; border-radius: 40px; width: 90%; max-width: 380px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center;
         }
 
-        h2 { font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; }
+        h2 { font-weight: 900; letter-spacing: -1.5px; font-size: 1.8rem; margin-bottom: 30px; }
         
         .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 0.7rem; font-weight: 800; color: #64748b; margin-left: 15px; text-transform: uppercase; }
+        label { font-size: 0.65rem; font-weight: 800; color: var(--sub); text-transform: uppercase; margin-left: 15px; }
         
-        input, select {
-            width: 100%; padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.8);
-            background: rgba(255,255,255,0.4); margin-top: 5px; outline: none; box-sizing: border-box;
-            font-family: inherit; font-weight: 600;
+        input {
+            width: 100%; padding: 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.5); margin-top: 5px; outline: none; box-sizing: border-box;
+            font-weight: 600; transition: 0.3s;
         }
+        input:focus { border-color: var(--accent); background: white; }
 
-        .role-selector {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;
-        }
-
+        .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        
         .role-option {
-            padding: 15px; border-radius: 20px; border: 2px solid transparent;
-            background: white; cursor: pointer; font-weight: 800; transition: 0.3s;
+            padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.4);
+            border: 2px solid transparent; cursor: pointer; font-weight: 800; font-size: 0.8rem;
+            transition: 0.3s; color: var(--sub);
         }
-
-        .role-option.active { border-color: var(--accent); color: var(--accent); }
+        .role-option.active { border-color: var(--accent); color: var(--accent); background: white; }
 
         #mainBtn {
-            width: 100%; padding: 18px; border-radius: 25px; border: none;
+            width: 100%; padding: 20px; border-radius: 25px; border: none;
             background: var(--text); color: white; font-weight: 800; cursor: pointer;
-            margin-top: 20px; transition: 0.3s;
+            margin-top: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s;
         }
+        #mainBtn:hover { transform: translateY(-2px); }
 
-        .toggle-link { font-size: 0.8rem; margin-top: 20px; cursor: pointer; color: #64748b; }
+        .toggle-link { font-size: 0.75rem; margin-top: 25px; cursor: pointer; color: var(--sub); font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="auth-card">
-        <div id="auth-title"><h2>STARTGO<span style="color:var(--accent)">.</span></h2></div>
+        <h2>STARTGO<span style="color:var(--accent)">.</span></h2>
         
+        <div id="signup-fields" style="display: none;">
+            <div class="input-group">
+                <label>Nom complet</label>
+                <input type="text" id="fullname" placeholder="Ex: Marc Kevin">
+            </div>
+            <div class="role-selector">
+                <div class="role-option active" id="opt-athlete" onclick="selectRole('athlete')">ATHLÈTE</div>
+                <div class="role-option" id="opt-coach" onclick="selectRole('coach')">COACH</div>
+            </div>
+        </div>
+
         <div class="input-group">
             <label>Email</label>
-            <input type="email" id="email" placeholder="ton@email.com">
+            <input type="email" id="email" placeholder="coach@startgo.com">
         </div>
         
         <div class="input-group">
@@ -77,32 +90,21 @@
             <input type="password" id="password" placeholder="••••••••">
         </div>
 
-        <div id="signup-extras" style="display: none;">
-            <div class="input-group">
-                <label>Nom complet</label>
-                <input type="text" id="fullname" placeholder="Jean Dupont">
-            </div>
-            <label>Je suis :</label>
-            <div class="role-selector">
-                <div class="role-option active" onclick="setRole('athlete')" id="opt-athlete">ATHLÈTE</div>
-                <div class="role-option" onclick="setRole('coach')" id="opt-coach">COACH</div>
-            </div>
-        </div>
-
         <button id="mainBtn" onclick="handleAuth()">Se connecter</button>
-        <div class="toggle-link" onclick="toggleMode()" id="toggle-text">Pas de compte ? Créer un profil</div>
+        <div class="toggle-link" id="toggle-btn" onclick="toggleMode()">Nouveau ici ? Créer un compte</div>
     </div>
 
     <script>
-        // CONFIGURATION FIREBASE
+        // CONFIGURATION AUTOMATIQUE (Tes clés)
         const firebaseConfig = {
-            apiKey: "XXXXX",
-            authDomain: "XXXXX",
-            projectId: "XXXXX",
-            storageBucket: "XXXXX",
-            messagingSenderId: "XXXXX",
-            appId: "XXXXX"
+            apiKey: "AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU",
+            authDomain: "startgo-project.firebaseapp.com",
+            projectId: "startgo-project",
+            storageBucket: "startgo-project.firebasestorage.app",
+            messagingSenderId: "920233789220",
+            appId: "1:920233789220:web:9f8a8d9fd3a3add39a55b1"
         };
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -110,17 +112,17 @@
         let isSignup = false;
         let selectedRole = 'athlete';
 
-        function setRole(role) {
-            selectedRole = role;
-            document.getElementById('opt-athlete').classList.toggle('active', role === 'athlete');
-            document.getElementById('opt-coach').classList.toggle('active', role === 'coach');
-        }
-
         function toggleMode() {
             isSignup = !isSignup;
-            document.getElementById('signup-extras').style.display = isSignup ? 'block' : 'none';
-            document.getElementById('mainBtn').innerText = isSignup ? 'Créer mon compte' : 'Se connecter';
-            document.getElementById('toggle-text').innerText = isSignup ? 'Déjà un compte ? Se connecter' : 'Pas de compte ? Créer un profil';
+            document.getElementById('signup-fields').style.display = isSignup ? 'block' : 'none';
+            document.getElementById('mainBtn').innerText = isSignup ? 'Créer le compte' : 'Se connecter';
+            document.getElementById('toggle-btn').innerText = isSignup ? 'Déjà inscrit ? Connexion' : 'Nouveau ici ? Créer un compte';
+        }
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('opt-athlete').className = 'role-option' + (role === 'athlete' ? ' active' : '');
+            document.getElementById('opt-coach').className = 'role-option' + (role === 'coach' ? ' active' : '');
         }
 
         async function handleAuth() {
@@ -130,22 +132,24 @@
             try {
                 if (isSignup) {
                     const name = document.getElementById('fullname').value;
-                    const res = await auth.createUserWithEmailAndPassword(email, password);
-                    // Sauvegarde du rôle dans la base de données
-                    await db.collection('users').doc(res.user.uid).set({
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    
+                    // Enregistrement du profil dans Firestore
+                    await db.collection('users').doc(userCredential.user.uid).set({
                         name: name,
                         role: selectedRole,
                         email: email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        uid: userCredential.user.uid
                     });
-                    alert("Compte créé !");
+                    alert("Compte " + selectedRole + " créé avec succès !");
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
+                    alert("Connexion réussie !");
                 }
-                // Une fois connecté, on redirigera vers le dashboard (prochaine étape)
-                alert("Connecté !");
+                
+                // Ici, on pourra rediriger vers le Dashboard plus tard
             } catch (error) {
-                alert(error.message);
+                alert("Erreur : " + error.message);
             }
         }
     </script>
