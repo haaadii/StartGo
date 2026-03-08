@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>StartGo</title>
+    <title>StartGo Pro - V32</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -35,6 +35,221 @@
             <div id="signup-fields" style="display:none;">
                 <input type="text" id="reg-name" placeholder="Pseudo">
                 <select id="reg-role"><option value="athlete">Athlète</option><option value="coach">Coach</option></select>
+            </div>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="pass" placeholder="Mot de passe">
+            <button onclick="handleAuth()">CONTINUER</button>
+            <p onclick="document.getElementById('signup-fields').style.display='block'" style="font-size:0.8rem; color:var(--sub); margin-top:15px; cursor:pointer;">Créer un compte</p>
+        </div>
+    </div>
+
+    <div id="app-ui" style="display:none;">
+        <header class="header">
+            <div style="font-weight:900;">STARTGO<span id="role-tag" style="color:var(--accent); font-size:0.7rem; margin-left:5px;"></span></div>
+            <div id="user-name" style="font-size:0.85rem;">...</div>
+        </header>
+
+        <main class="container">
+            <div id="tab-home" class="tab-sec">
+                <div id="ath-home" style="display:none;"><div class="card"><div id="timer" style="font-size:4rem; font-weight:900; text-align:center;">0.00</div><button>DÉMARRER</button></div></div>
+                <div id="coa-home" style="display:none;"><h3>Mes Athlètes</h3><div id="coa-list"></div></div>
+            </div>
+
+            <div id="tab-msg" class="tab-sec" style="display:none;">
+                <div id="contacts-container">
+                    <input type="text" placeholder="Rechercher..." oninput="searchUsers(this.value)">
+                    <div id="search-results"></div>
+                    <div id="contacts-list"></div>
+                </div>
+                <div id="chat-window" style="display:none;">
+                    <div style="display:flex; align-items:center; border-bottom:1px solid var(--stroke); padding-bottom:10px;">
+                        <button onclick="backToContacts()" style="width:40px; background:none;">←</button>
+                        <b id="active-user-name" style="margin-left:10px;"></b>
+                    </div>
+                    <div id="chat-box"></div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="m-in" placeholder="Message..." style="margin:0;">
+                        <button onclick="sendMsg()" style="width:60px;">></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-set" class="tab-sec" style="display:none;">
+                <div class="card">
+                    <input type="number" id="set-weight" placeholder="Poids (kg)">
+                    <input type="number" id="set-height" placeholder="Taille (cm)">
+                    <input type="text" id="set-goal" placeholder="Objectif">
+                    <button onclick="updateProfile()">SAUVEGARDER</button>
+                </div>
+                <div class="card" id="liaison-card">
+                    <div id="coa-pairing" style="display:none;"><div id="pair-display" style="font-size:2rem; text-align:center; color:var(--accent); font-weight:bold;">------</div><button onclick="genPairCode()">GÉNÉRER CODE</button></div>
+                    <div id="ath-pairing" style="display:none;"><input type="text" id="pair-input" placeholder="Code Coach"><button onclick="joinCoach()">LIER</button></div>
+                </div>
+                <button onclick="auth.signOut().then(()=>location.reload())" style="background:#ed4956;">DÉCONNEXION</button>
+            </div>
+        </main>
+
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="setTab('home', this)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Home</div>
+            <div class="nav-item" onclick="setTab('msg', this)"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Chat</div>
+            <div class="nav-item" onclick="setTab('set', this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Profil</div>
+        </nav>
+    </div>
+
+    <script>
+        const config = { apiKey: "AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU", authDomain: "startgo-project.firebaseapp.com", projectId: "startgo-project", storageBucket: "startgo-project.firebasestorage.app", messagingSenderId: "920233789220", appId: "1:920233789220:web:9f8a8d9fd3a3add39a55b1" };
+        firebase.initializeApp(config);
+        const auth = firebase.auth(), db = firebase.firestore();
+        let uData = null, activeChatId = null, chatUnsub = null;
+
+        auth.onAuthStateChanged(async (u) => {
+            if (u) {
+                const snap = await db.collection('users').doc(u.uid).get();
+                uData = snap.data();
+                if(uData) {
+                    document.getElementById('user-name').innerText = uData.name;
+                    loadUI();
+                    document.getElementById('auth-ui').style.display = 'none';
+                    document.getElementById('app-ui').style.display = 'block';
+                }
+            } else {
+                document.getElementById('auth-ui').style.display = 'flex';
+                document.getElementById('app-ui').style.display = 'none';
+            }
+        });
+
+        function loadUI() {
+            const isCoach = uData.role === 'coach';
+            document.getElementById('role-tag').innerText = uData.role.toUpperCase();
+            document.getElementById('ath-home').style.display = isCoach ? 'none' : 'block';
+            document.getElementById('coa-home').style.display = isCoach ? 'block' : 'none';
+            document.getElementById('coa-pairing').style.display = isCoach ? 'block' : 'none';
+            document.getElementById('ath-pairing').style.display = isCoach ? 'none' : 'block';
+            document.getElementById('set-weight').value = uData.weight || "";
+            document.getElementById('set-height').value = uData.height || "";
+            document.getElementById('set-goal').value = uData.goal || "";
+        }
+
+        async function searchUsers(val) {
+            const resBox = document.getElementById('search-results');
+            if(val.length < 2) { resBox.innerHTML = ""; return; }
+            const s = await db.collection('users').where('name', '>=', val).limit(5).get();
+            resBox.innerHTML = "";
+            s.forEach(doc => {
+                let u = doc.data(); if(u.uid === auth.currentUser.uid) return;
+                let d = document.createElement('div');
+                d.style = "padding:10px; border-bottom:1px solid #222; cursor:pointer;";
+                d.innerText = u.name + " (" + u.role + ")";
+                d.onclick = () => { openChat(u.uid, u.name); resBox.innerHTML = ""; };
+                resBox.appendChild(d);
+            });
+        }
+
+        async function loadContacts() {
+            const list = document.getElementById('contacts-list');
+            list.innerHTML = "Chargement...";
+            let contacts = [];
+            if(uData.role === 'coach') {
+                const s = await db.collection('users').where('coachId', '==', auth.currentUser.uid).get();
+                s.forEach(doc => contacts.push(doc.data()));
+            } else if(uData.coachId) {
+                const doc = await db.collection('users').doc(uData.coachId).get();
+                if(doc.exists) contacts.push(doc.data());
+            }
+            list.innerHTML = contacts.length ? "" : "<p style='color:gray;text-align:center;'>Aucun contact lié.</p>";
+            contacts.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'msg-list-item';
+                div.onclick = () => openChat(c.uid, c.name);
+                div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${c.name}&background=random" class="msg-avatar">
+                                 <div><b>${c.name}</b><br><small style="color:gray">${c.role}</small></div>`;
+                list.appendChild(div);
+            });
+        }
+
+        function openChat(uid, name) {
+            if(chatUnsub) chatUnsub();
+            activeChatId = uid;
+            document.getElementById('contacts-container').style.display = 'none';
+            document.getElementById('chat-window').style.display = 'block';
+            document.getElementById('active-user-name').innerText = name;
+            
+            // ID de salon unique basé sur les deux UIDs triés (pour que A->B et B->A soit le même salon)
+            const chatId = [auth.currentUser.uid, uid].sort().join('_');
+            
+            chatUnsub = db.collection('chats').doc(chatId).collection('messages')
+                .orderBy('date', 'asc')
+                .onSnapshot(s => {
+                    const box = document.getElementById('chat-box');
+                    box.innerHTML = "";
+                    s.forEach(doc => {
+                        const m = doc.data();
+                        const b = document.createElement('div');
+                        b.className = `bubble ${m.sender === auth.currentUser.uid ? 'me' : 'them'}`;
+                        b.innerText = m.text;
+                        box.appendChild(b);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+        }
+
+        async function sendMsg() {
+            const txt = document.getElementById('m-in').value.trim();
+            if(!txt || !activeChatId) return;
+            const chatId = [auth.currentUser.uid, activeChatId].sort().join('_');
+            await db.collection('chats').doc(chatId).collection('messages').add({
+                text: txt, sender: auth.currentUser.uid, date: Date.now()
+            });
+            document.getElementById('m-in').value = "";
+        }
+
+        function backToContacts() {
+            if(chatUnsub) chatUnsub();
+            document.getElementById('contacts-container').style.display = 'block';
+            document.getElementById('chat-window').style.display = 'none';
+        }
+
+        function setTab(id, el) {
+            document.querySelectorAll('.tab-sec').forEach(t => t.style.display = 'none');
+            document.getElementById('tab-'+id).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            if(id === 'msg') loadContacts();
+        }
+
+        async function updateProfile() {
+            const up = { weight: document.getElementById('set-weight').value, height: document.getElementById('set-height').value, goal: document.getElementById('set-goal').value };
+            await db.collection('users').doc(auth.currentUser.uid).update(up);
+            alert("Profil mis à jour !");
+        }
+
+        async function genPairCode() {
+            const code = Math.random().toString(36).substring(2,8).toUpperCase();
+            await db.collection('pairing_codes').doc(code).set({ coachId: auth.currentUser.uid, expires: Date.now() + 600000 });
+            document.getElementById('pair-display').innerText = code;
+        }
+
+        async function joinCoach() {
+            const code = document.getElementById('pair-input').value.toUpperCase().trim();
+            const d = await db.collection('pairing_codes').doc(code).get();
+            if(d.exists && Date.now() < d.data().expires) {
+                await db.collection('users').doc(auth.currentUser.uid).update({ coachId: d.data().coachId });
+                alert("Coach lié !"); location.reload();
+            } else alert("Code invalide ou expiré");
+        }
+
+        async function handleAuth() {
+            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+            try {
+                if(document.getElementById('signup-fields').style.display === 'block') {
+                    const r = await auth.createUserWithEmailAndPassword(e, p);
+                    await db.collection('users').doc(r.user.uid).set({ uid: r.user.uid, name: document.getElementById('reg-name').value, role: document.getElementById('reg-role').value });
+                } else await auth.signInWithEmailAndPassword(e, p);
+            } catch(err) { alert(err.message); }
+        }
+    </script>
+</body>
+</html>                <select id="reg-role"><option value="athlete">Athlète</option><option value="coach">Coach</option></select>
             </div>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="pass" placeholder="Mot de passe">
