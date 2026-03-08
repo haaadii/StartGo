@@ -4,1642 +4,1650 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>StartGo Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg-base:#0f172a;
-  --glass-bg:rgba(255,255,255,0.07);
-  --glass-border:rgba(255,255,255,0.13);
-  --text:#f8fafc;
-  --sub:rgba(255,255,255,0.55);
-  --blue:#3b82f6;
-  --green:#22c55e;
-  --red:#ef4444;
-  --yellow:#fbbf24;
-  --sidebar-w:240px;
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#f7fafc;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --sub:#64748b;
+  --sub2:#94a3b8;
+  --blue:#2563eb;
+  --blue-light:#dbeafe;
+  --green:#16a34a;
+  --green-light:#dcfce7;
+  --red:#dc2626;
+  --red-light:#fee2e2;
+  --yellow:#d97706;
+  --yellow-light:#fef3c7;
+  --orange:#ea580c;
+  --shadow:0 2px 12px rgba(15,23,42,0.08);
+  --shadow-lg:0 8px 32px rgba(15,23,42,0.12);
+  --radius:16px;
+  --sidebar:252px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body.light-mode{--bg-base:#f0f4f8;--glass-bg:rgba(255,255,255,0.6);--glass-border:rgba(0,0,0,0.08);--text:#0f172a;--sub:rgba(15,23,42,0.5);}
+body.dark{
+  --bg:#0f172a;
+  --surface:rgba(30,41,59,0.9);
+  --surface2:#1e293b;
+  --border:rgba(255,255,255,0.1);
+  --text:#f1f5f9;
+  --sub:#94a3b8;
+  --sub2:#475569;
+  --blue:#3b82f6;
+  --blue-light:rgba(59,130,246,0.15);
+  --green:#22c55e;
+  --green-light:rgba(34,197,94,0.12);
+  --red:#ef4444;
+  --red-light:rgba(239,68,68,0.12);
+  --yellow:#fbbf24;
+  --yellow-light:rgba(251,191,36,0.12);
+  --shadow:0 2px 16px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.4);
+}
 
-/* MESH BACKGROUND */
-#mesh-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.35;}
-.blob1{width:500px;height:500px;background:#3b82f6;top:-100px;left:-100px;animation:bm1 20s ease-in-out infinite;}
-.blob2{width:400px;height:400px;background:#8b5cf6;top:30%;right:-80px;animation:bm2 25s ease-in-out infinite;}
-.blob3{width:350px;height:350px;background:#22c55e;bottom:-50px;left:30%;animation:bm3 18s ease-in-out infinite;}
-.blob4{width:300px;height:300px;background:#ef4444;bottom:20%;left:-80px;animation:bm4 22s ease-in-out infinite;}
-.blob5{width:250px;height:250px;background:#f59e0b;top:60%;right:20%;animation:bm5 28s ease-in-out infinite;}
-@keyframes bm1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(80px,60px) scale(1.1)}}
-@keyframes bm2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-60px,80px) scale(0.9)}}
-@keyframes bm3{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(50px,-40px) scale(1.15)}66%{transform:translate(-30px,30px) scale(0.95)}}
-@keyframes bm4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(70px,-50px) scale(1.05)}}
-@keyframes bm5{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-80px,40px) scale(1.2)}}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
 
-/* GLASS */
-.glass-card{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);padding:24px;margin-bottom:20px;}
-.glass-input{background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;width:100%;outline:none;transition:border 0.2s;}
-.glass-input:focus{border-color:rgba(255,255,255,0.35);}
-select.glass-input option{background:#1e293b;color:white;}
+/* MESH BG */
+#mesh-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);}
+body:not(.dark) .blob1{width:600px;height:600px;background:#bfdbfe;top:-150px;left:-150px;opacity:0.5;animation:bm1 22s ease-in-out infinite;}
+body:not(.dark) .blob2{width:500px;height:500px;background:#bbf7d0;top:40%;right:-100px;opacity:0.4;animation:bm2 28s ease-in-out infinite;}
+body:not(.dark) .blob3{width:400px;height:400px;background:#fed7aa;bottom:-100px;left:20%;opacity:0.35;animation:bm3 20s ease-in-out infinite;}
+body.dark .blob1{width:600px;height:600px;background:#1d4ed8;top:-150px;left:-150px;opacity:0.2;animation:bm1 22s ease-in-out infinite;}
+body.dark .blob2{width:500px;height:500px;background:#166534;top:40%;right:-100px;opacity:0.2;animation:bm2 28s ease-in-out infinite;}
+body.dark .blob3{width:400px;height:400px;background:#7c2d12;bottom:-100px;left:20%;opacity:0.18;animation:bm3 20s ease-in-out infinite;}
+@keyframes bm1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.1)}}
+@keyframes bm2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,60px) scale(0.95)}}
+@keyframes bm3{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-40px) scale(1.08)}}
+
+/* AUTH */
+#auth-page{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-wrap{width:100%;max-width:380px;}
+.auth-logo{font-family:'Barlow Condensed',sans-serif;font-size:3rem;font-weight:900;letter-spacing:2px;text-align:center;margin-bottom:6px;}
+.auth-logo em{color:var(--blue);font-style:normal;}
+.auth-tagline{text-align:center;color:var(--sub);font-size:0.85rem;margin-bottom:28px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:0.72rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.fi{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:'Nunito',sans-serif;font-size:0.92rem;outline:none;transition:border 0.2s;}
+.fi:focus{border-color:var(--blue);}
+select.fi option{background:var(--surface);}
+.auth-err{font-size:0.8rem;color:var(--red);min-height:18px;margin-bottom:8px;text-align:center;}
+.auth-switch{text-align:center;margin-top:14px;font-size:0.83rem;color:var(--sub);}
+.auth-switch span{color:var(--blue);cursor:pointer;font-weight:700;}
+
+/* APP SHELL */
+#app{position:relative;z-index:10;display:none;min-height:100vh;}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0;z-index:100;box-shadow:var(--shadow);}
+.sidebar-head{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;letter-spacing:2px;}
+.logo em{color:var(--blue);font-style:normal;}
+.sidebar-user-row{display:flex;align-items:center;gap:10px;margin-top:12px;cursor:pointer;}
+.sidebar-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:white;flex-shrink:0;overflow:hidden;}
+.sidebar-avatar img{width:100%;height:100%;object-fit:cover;}
+.sidebar-uname{font-weight:800;font-size:0.88rem;line-height:1.2;}
+.sidebar-urole{font-size:0.72rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+
+#sidebar-nav{flex:1;overflow-y:auto;padding:12px 10px;}
+.nav-section{font-size:0.65rem;font-weight:800;color:var(--sub2);text-transform:uppercase;letter-spacing:1.5px;padding:10px 10px 6px;}
+.ni{padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--sub);display:flex;align-items:center;gap:10px;font-size:0.88rem;font-weight:700;transition:all 0.15s;position:relative;margin-bottom:2px;}
+.ni:hover{color:var(--text);background:var(--surface2);}
+.ni.active{color:var(--blue);background:var(--blue-light);}
+.ni .ni-icon{font-size:1.1rem;width:22px;text-align:center;}
+.ni .badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:0.68rem;font-weight:800;display:none;}
+.ni .badge.show{display:inline;}
+
+#main{margin-left:var(--sidebar);padding:28px;min-height:100vh;max-width:calc(100vw - var(--sidebar));}
+
+/* PAGES */
+.page{display:none;animation:fadeIn 0.2s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* HEADERS */
+.page-header{margin-bottom:24px;}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;}
+.page-sub{color:var(--sub);font-size:0.85rem;font-weight:600;margin-top:2px;}
 
 /* BUTTONS */
-.btn-liquid{background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.25),rgba(255,255,255,0.05));backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:50px;color:white;font-weight:700;font-family:'DM Sans',sans-serif;padding:12px 28px;cursor:pointer;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 15px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.3);font-size:0.95rem;}
-.btn-liquid:hover{transform:scale(1.04) translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.4);}
-.btn-liquid:active{transform:scale(0.98);}
-.btn-blue{background:radial-gradient(circle at 30% 30%,rgba(59,130,246,0.5),rgba(59,130,246,0.15));border-color:rgba(59,130,246,0.5);box-shadow:0 4px 20px rgba(59,130,246,0.3),inset 0 1px 0 rgba(255,255,255,0.2);}
-.btn-green{background:radial-gradient(circle at 30% 30%,rgba(34,197,94,0.5),rgba(34,197,94,0.15));border-color:rgba(34,197,94,0.5);box-shadow:0 4px 20px rgba(34,197,94,0.3),inset 0 1px 0 rgba(255,255,255,0.2);}
-.btn-red{background:radial-gradient(circle at 30% 30%,rgba(239,68,68,0.5),rgba(239,68,68,0.15));border-color:rgba(239,68,68,0.5);box-shadow:0 4px 20px rgba(239,68,68,0.3),inset 0 1px 0 rgba(255,255,255,0.2);}
-.btn-yellow{background:radial-gradient(circle at 30% 30%,rgba(251,191,36,0.5),rgba(251,191,36,0.15));border-color:rgba(251,191,36,0.5);box-shadow:0 4px 20px rgba(251,191,36,0.3),inset 0 1px 0 rgba(255,255,255,0.2);}
-.btn-full{width:100%;display:block;text-align:center;}
-.btn-sm{padding:8px 16px;font-size:0.82rem;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.88rem;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.3px;}
+.btn:hover{filter:brightness(0.92);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);filter:brightness(0.85);}
+.btn-primary{background:var(--blue);color:white;}
+.btn-success{background:var(--green);color:white;}
+.btn-danger{background:var(--red);color:white;}
+.btn-warning{background:var(--yellow);color:white;}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-full{width:100%;display:flex;}
+.btn-sm{padding:7px 14px;font-size:0.8rem;}
+.btn-xs{padding:4px 10px;font-size:0.75rem;}
+.btn-icon{width:36px;height:36px;padding:0;border-radius:50%;}
 
-/* AUTH PAGE */
-#auth-page{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;}
-.auth-card{width:340px;text-align:center;padding:40px 32px;}
-.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:2.5rem;letter-spacing:-1px;margin-bottom:8px;}
-.auth-logo span{color:var(--blue);}
-.auth-sub{color:var(--sub);font-size:0.85rem;margin-bottom:28px;}
-.auth-toggle{font-size:0.82rem;color:var(--sub);cursor:pointer;margin-top:12px;display:inline-block;}
-.auth-toggle:hover{color:var(--text);}
-.auth-error{color:var(--red);font-size:0.82rem;margin-bottom:10px;min-height:20px;}
-.form-label{font-size:0.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;display:block;text-align:left;margin-bottom:6px;margin-top:14px;}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);}
+.card-sm{padding:16px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;color:var(--text);}
 
-/* APP LAYOUT */
-#app{position:relative;z-index:10;display:none;min-height:100vh;}
-#sidebar-desktop{position:fixed;left:20px;top:20px;bottom:20px;width:var(--sidebar-w);background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;flex-direction:column;padding:24px 16px;z-index:50;}
-.sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-1px;margin-bottom:32px;padding-left:8px;}
-.sidebar-logo span{color:var(--blue);}
-.nav-items{flex:1;display:flex;flex-direction:column;gap:6px;}
-.nav-item{padding:12px 14px;border-radius:14px;cursor:pointer;color:var(--sub);display:flex;align-items:center;gap:10px;font-size:0.9rem;font-weight:500;transition:all 0.2s;border:1px solid transparent;}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.05);}
-.nav-item.active{color:white;background:var(--glass-bg);border-color:var(--glass-border);}
-.nav-item .badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:2px 7px;font-size:0.7rem;font-weight:800;}
-.sidebar-user{border-top:1px solid var(--glass-border);padding-top:16px;margin-top:8px;}
-.sidebar-user-name{font-weight:700;font-size:0.9rem;}
-.sidebar-user-role{font-size:0.75rem;color:var(--sub);}
+/* BADGES */
+.badge-role{padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.b-athlete{background:var(--blue-light);color:var(--blue);}
+.b-coach{background:var(--green-light);color:var(--green);}
+.b-admin{background:var(--red-light);color:var(--red);}
 
-#main-content{margin-left:calc(var(--sidebar-w) + 40px);padding:30px 30px 30px 0;min-height:100vh;}
-.page{display:none;}
-.page.active{display:block;}
+/* AVATAR GENERATION */
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;color:white;overflow:hidden;flex-shrink:0;}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.av-sm{width:38px;height:38px;font-size:0.9rem;}
+.av-md{width:52px;height:52px;font-size:1.2rem;}
+.av-lg{width:80px;height:80px;font-size:1.8rem;}
+.av-xl{width:120px;height:120px;font-size:2.5rem;}
 
-/* MOBILE NAV */
-#nav-mobile{display:none;position:fixed;bottom:15px;left:15px;right:15px;height:65px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:50;justify-content:space-around;align-items:center;}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--sub);font-size:0.6rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:8px 12px;border-radius:12px;transition:0.2s;position:relative;}
-.mob-nav-item.active{color:var(--text);}
-.mob-nav-item .mob-badge{position:absolute;top:4px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;}
+/* TRAINING */
+.chrono-big{font-family:'Barlow Condensed',sans-serif;font-size:6rem;font-weight:900;line-height:1;letter-spacing:-2px;text-align:center;transition:color 0.3s;}
+.chrono-react{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:800;text-align:center;color:var(--yellow);}
+.state-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:50px;font-size:0.75rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.sp-idle{background:var(--surface2);color:var(--sub);}
+.sp-wait{background:var(--yellow-light);color:var(--yellow);}
+.sp-bip{background:var(--green-light);color:var(--green);}
+.sp-run{background:var(--blue-light);color:var(--blue);}
+.sp-false{background:var(--red-light);color:var(--red);}
+.sp-end{background:#ede9fe;color:#7c3aed;}
+.pulse{animation:pulse 0.6s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:1}to{opacity:0.4}}
 
-@media(max-width:768px){
-  #sidebar-desktop{display:none;}
-  #main-content{margin-left:0;padding:20px 15px 90px;}
-  #nav-mobile{display:flex;}
-}
-
-/* SECTION TITLES */
-.sec-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;margin-bottom:20px;letter-spacing:-0.5px;}
-.sec-sub{color:var(--sub);font-size:0.85rem;margin-bottom:20px;}
-.label{font-size:0.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;}
-
-/* CHRONO */
-#chrono-display{font-family:'Syne',sans-serif;font-size:5rem;font-weight:800;letter-spacing:-4px;line-height:1;text-align:center;color:var(--blue);transition:color 0.3s;}
-#react-display{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:700;color:var(--yellow);transition:all 0.5s;text-align:center;}
-.state-indicator{text-align:center;padding:8px 20px;border-radius:50px;font-size:0.75rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:inline-block;margin:0 auto 16px;}
-.state-idle{background:rgba(255,255,255,0.05);color:var(--sub);}
-.state-wait,.state-alea{background:rgba(251,191,36,0.15);color:var(--yellow);border:1px solid rgba(251,191,36,0.3);}
-.state-bip{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
-.state-run{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);}
-.state-end{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
-.state-false{background:rgba(239,68,68,0.2);color:var(--red);border:1px solid rgba(239,68,68,0.4);animation:flashRed 0.3s ease-in-out 3;}
-@keyframes flashRed{0%,100%{opacity:1}50%{opacity:0.4}}
-
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;}
-.stat-box{text-align:center;padding:16px;}
-.stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;}
-.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
-.slider-row{margin:16px 0;}
-.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-input[type=range]{width:100%;height:5px;border-radius:10px;appearance:none;background:rgba(255,255,255,0.1);outline:none;}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:var(--text);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+/* SLIDERS */
+.slider-wrap{margin-bottom:16px;}
+.slider-lbl{display:flex;justify-content:space-between;font-size:0.75rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.slider-val{color:var(--text);font-weight:900;}
+input[type=range]{width:100%;height:4px;border-radius:10px;appearance:none;background:var(--border);outline:none;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:var(--blue);border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(37,99,235,0.4);}
 
 /* HISTORY */
-.h-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:18px;padding:16px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
-.h-name-input{background:none;border:none;font-weight:700;font-size:0.95rem;color:var(--text);font-family:'DM Sans',sans-serif;width:120px;outline:none;}
-.h-name-input:focus{border-bottom:1px solid var(--glass-border);}
-.h-metrics{display:flex;gap:16px;font-size:0.8rem;color:var(--sub);}
-.h-metric span{font-weight:700;font-size:0.95rem;}
-.h-del{background:none;border:none;color:rgba(239,68,68,0.5);cursor:pointer;font-size:1.1rem;padding:4px 8px;transition:0.2s;border-radius:8px;}
-.h-del:hover{color:var(--red);background:rgba(239,68,68,0.1);}
+.h-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;box-shadow:var(--shadow);}
+.h-edit{background:none;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;outline:none;width:140px;}
+.h-edit:focus{border-bottom:1.5px solid var(--blue);}
+.h-metrics{display:flex;gap:16px;flex-wrap:wrap;}
+.h-met{text-align:center;}
+.h-met-lbl{font-size:0.62rem;font-weight:800;color:var(--sub2);text-transform:uppercase;letter-spacing:0.8px;}
+.h-met-val{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;}
+.h-del{background:none;border:none;cursor:pointer;color:var(--sub2);font-size:1.1rem;padding:4px;border-radius:6px;transition:0.15s;}
+.h-del:hover{color:var(--red);background:var(--red-light);}
 
-/* CHAT */
-#chat-box{height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:16px;margin-bottom:14px;border:1px solid var(--glass-border);border-radius:16px;}
-#chat-box::-webkit-scrollbar{width:4px;}
-#chat-box::-webkit-scrollbar-track{background:transparent;}
-#chat-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
-.msg{padding:10px 14px;border-radius:16px;max-width:75%;font-size:0.88rem;line-height:1.5;position:relative;}
-.msg.me{align-self:flex-end;background:var(--blue);color:white;border-bottom-right-radius:4px;}
-.msg.them{align-self:flex-start;background:rgba(255,255,255,0.1);border-bottom-left-radius:4px;}
-.msg-del{position:absolute;top:-8px;right:-8px;background:var(--red);color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:0.7rem;display:none;}
-.msg.me:hover .msg-del{display:flex;align-items:center;justify-content:center;}
-.chat-input-row{display:flex;gap:10px;}
-.chat-input-row .glass-input{flex:1;margin:0;}
-.chat-send{padding:12px 20px;border-radius:12px;background:var(--blue);color:white;border:none;cursor:pointer;font-weight:700;font-size:0.9rem;transition:0.2s;}
-.chat-send:hover{opacity:0.85;}
+/* ====== MESSAGING — INSTAGRAM STYLE ====== */
+.msg-layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 120px);gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg);}
+.msg-sidebar{border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.msg-sidebar-head{padding:16px;border-bottom:1px solid var(--border);}
+.msg-sidebar-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.msg-search{width:100%;padding:9px 14px;border:1.5px solid var(--border);border-radius:50px;background:var(--surface2);color:var(--text);font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;}
+.msg-search:focus{border-color:var(--blue);}
+.msg-list{flex:1;overflow-y:auto;}
+.msg-contact{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:0.15s;border-bottom:1px solid var(--border);}
+.msg-contact:hover{background:var(--surface2);}
+.msg-contact.active{background:var(--blue-light);}
+.msg-contact-info{flex:1;min-width:0;}
+.msg-contact-name{font-weight:800;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-contact-preview{font-size:0.78rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-contact-meta{text-align:right;flex-shrink:0;}
+.msg-contact-time{font-size:0.68rem;color:var(--sub2);}
+.unread-dot{width:10px;height:10px;background:var(--blue);border-radius:50%;margin-left:auto;margin-top:4px;}
+.msg-contact.request-pending{border-left:3px solid var(--yellow);}
 
-/* COACH ATHLETES */
-.ath-card{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;transition:0.2s;}
-.ath-card:hover{background:rgba(255,255,255,0.03);}
-.ath-name{font-weight:700;font-size:1rem;}
+.msg-area{display:flex;flex-direction:column;}
+.msg-chat-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.msg-chat-head-name{font-weight:800;font-size:1rem;}
+.msg-chat-head-role{font-size:0.75rem;color:var(--sub);}
+.msg-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub);gap:8px;}
+.msg-empty-icon{font-size:3rem;}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px;}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.bubble-row{display:flex;align-items:flex-end;gap:8px;}
+.bubble-row.me{flex-direction:row-reverse;}
+.bubble{padding:10px 14px;border-radius:18px;max-width:68%;font-size:0.88rem;line-height:1.5;position:relative;word-break:break-word;}
+.bubble.me{background:var(--blue);color:white;border-bottom-right-radius:4px;}
+.bubble.them{background:var(--surface2);color:var(--text);border-bottom-left-radius:4px;}
+.bubble-time{font-size:0.65rem;color:var(--sub2);text-align:right;margin-top:3px;}
+.chat-input-wrap{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+.chat-fi{flex:1;padding:10px 16px;border:1.5px solid var(--border);border-radius:50px;background:var(--surface2);color:var(--text);font-family:'Nunito',sans-serif;font-size:0.88rem;outline:none;}
+.chat-fi:focus{border-color:var(--blue);}
+.chat-send-btn{width:38px;height:38px;border-radius:50%;background:var(--blue);color:white;border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:0.15s;}
+.chat-send-btn:hover{background:#1d4ed8;}
 
-/* PAIRING */
-.pair-code{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:var(--green);letter-spacing:8px;text-align:center;padding:24px;transition:all 0.3s;}
-.pair-bar-wrap{height:6px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;margin-top:8px;}
-.pair-bar{height:100%;background:var(--green);border-radius:10px;transition:width 0.5s linear;}
+/* REQUEST BANNER */
+.req-banner{background:var(--yellow-light);border-bottom:1px solid #fde68a;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.req-banner-txt{font-size:0.85rem;font-weight:700;color:var(--yellow);}
+.req-actions{display:flex;gap:8px;}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.open{display:flex;}
-.modal-card{width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:32px;}
-.modal-close{float:right;background:none;border:none;color:var(--sub);font-size:1.3rem;cursor:pointer;margin-left:12px;}
+/* SEARCH RESULTS */
+.search-result-item{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:0.15s;}
+.search-result-item:hover{background:var(--surface2);}
 
-/* ADMIN TABLE */
-.admin-table{width:100%;border-collapse:collapse;}
-.admin-table th{text-align:left;padding:10px 14px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--sub);border-bottom:1px solid var(--glass-border);}
-.admin-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.88rem;}
-.admin-table tr:hover td{background:rgba(255,255,255,0.02);}
-.role-badge{padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
-.role-athlete{background:rgba(59,130,246,0.15);color:var(--blue);}
-.role-coach{background:rgba(34,197,94,0.15);color:var(--green);}
-.role-admin{background:rgba(239,68,68,0.15);color:var(--red);}
-.status-badge{padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:700;}
-.status-active{background:rgba(34,197,94,0.1);color:var(--green);}
-.status-disabled{background:rgba(239,68,68,0.1);color:var(--red);}
+/* PROFILES */
+.profile-hero{display:flex;gap:28px;align-items:flex-start;margin-bottom:24px;}
+.profile-photo-wrap{position:relative;flex-shrink:0;}
+.profile-photo-btn{position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--blue);color:white;border:none;border-radius:50%;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;}
+.profile-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.profile-stat{background:var(--surface2);border-radius:12px;padding:12px;text-align:center;}
+.profile-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--blue);}
+.profile-stat-lbl{font-size:0.68rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;}
+.bio-area{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:'Nunito',sans-serif;font-size:0.88rem;resize:vertical;min-height:80px;outline:none;}
+.bio-area:focus{border-color:var(--blue);}
+.photo-upload-input{display:none;}
+
+/* ADMIN */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.admin-user-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;}
+.admin-user-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.admin-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.admin-card-info{flex:1;min-width:0;}
+.admin-card-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-card-email{font-size:0.75rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-card-stats{display:flex;gap:8px;flex-wrap:wrap;font-size:0.75rem;color:var(--sub);}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+.dot-active{background:var(--green);}
+.dot-disabled{background:var(--red);}
+.admin-filter-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:7px 16px;border-radius:50px;font-size:0.78rem;font-weight:800;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--sub);transition:0.15s;}
+.filter-btn.active{background:var(--blue);color:white;border-color:var(--blue);}
 
 /* LOGS */
-.log-item{padding:12px 16px;border-left:3px solid transparent;margin-bottom:8px;border-radius:0 12px 12px 0;font-size:0.83rem;}
-.log-auth{border-color:var(--blue);background:rgba(59,130,246,0.05);}
-.log-session{border-color:var(--green);background:rgba(34,197,94,0.05);}
-.log-modify{border-color:var(--yellow);background:rgba(251,191,36,0.05);}
-.log-delete{border-color:var(--red);background:rgba(239,68,68,0.05);}
-.log-liaison{border-color:#8b5cf6;background:rgba(139,92,246,0.05);}
-.log-time{font-size:0.72rem;color:var(--sub);margin-bottom:2px;}
-.log-desc{font-weight:500;}
+.log-item{padding:12px 16px;border-left:3px solid var(--border);margin-bottom:8px;border-radius:0 10px 10px 0;font-size:0.83rem;background:var(--surface);}
+.log-auth{border-color:var(--blue);}
+.log-session{border-color:var(--green);}
+.log-modify{border-color:var(--yellow);}
+.log-delete{border-color:var(--red);}
+.log-liaison{border-color:#8b5cf6;}
+.log-lbl{font-size:0.68rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
 
-/* COACH NOTE */
-.coach-note{width:100%;min-height:100px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:12px;color:var(--text);font-family:'DM Sans',sans-serif;resize:vertical;outline:none;}
+/* PAIRING */
+.pair-code-display{font-family:'Barlow Condensed',sans-serif;font-size:4rem;font-weight:900;letter-spacing:12px;color:var(--green);text-align:center;padding:20px;}
+.pair-progress-wrap{height:6px;background:var(--border);border-radius:10px;overflow:hidden;}
+.pair-progress{height:100%;background:var(--green);border-radius:10px;transition:width 0.8s linear;}
 
-/* LIGHT MODE ADJUSTMENTS */
-body.light-mode .blob{opacity:0.15;}
-body.light-mode .blob1{background:#93c5fd;}
-body.light-mode .blob2{background:#c4b5fd;}
-body.light-mode .blob3{background:#86efac;}
-body.light-mode .blob4{background:#fca5a5;}
-body.light-mode .blob5{background:#fde68a;}
-body.light-mode #mesh-bg{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 50%,#f0fdf4 100%);}
-body.light-mode .glass-input{color:#0f172a;}
-body.light-mode select.glass-input option{background:#f8fafc;color:#0f172a;}
-body.light-mode .h-name-input{color:#0f172a;}
-body.light-mode .coach-note{color:#0f172a;}
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--surface);border-radius:var(--radius);padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:1px;text-transform:uppercase;}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--sub);font-size:1.2rem;padding:4px 8px;border-radius:6px;}
+.modal-close:hover{background:var(--surface2);}
+
+/* CONFIRM */
+.confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+.confirm-bg.open{display:flex;}
+.confirm-box{background:var(--surface);border-radius:var(--radius);padding:28px;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow-lg);}
+.confirm-title{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;margin-bottom:8px;}
+.confirm-msg{color:var(--sub);font-size:0.88rem;margin-bottom:20px;}
+.confirm-btns{display:flex;gap:10px;justify-content:center;}
 
 /* TOGGLE */
-.toggle-wrap{display:flex;align-items:center;gap:12px;}
-.toggle{width:44px;height:24px;background:rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;position:relative;transition:0.3s;border:1px solid var(--glass-border);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-lbl{font-weight:700;font-size:0.9rem;}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:0.25s;}
 .toggle.on{background:var(--blue);}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:white;border-radius:50%;transition:0.3s;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;transition:0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
 .toggle.on::after{left:23px;}
 
-/* SPARKLINE */
-.sparkline-container{display:flex;align-items:flex-end;gap:3px;height:50px;}
-.spark-bar{flex:1;background:var(--blue);border-radius:3px 3px 0 0;transition:0.3s;min-width:8px;}
+/* COACH NOTES */
+.note-display{background:var(--surface2);border-radius:10px;padding:14px;font-size:0.88rem;line-height:1.7;color:var(--text);white-space:pre-wrap;min-height:60px;}
 
-/* HR */
-.sep{border:none;border-top:1px solid var(--glass-border);margin:20px 0;}
+/* SPARKLINE */
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:48px;}
+.spark{flex:1;background:var(--blue);border-radius:3px 3px 0 0;min-width:6px;opacity:0.7;transition:opacity 0.2s;}
+.spark:hover{opacity:1;}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);border-radius:10px;padding:10px 22px;font-size:0.85rem;font-weight:700;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.3s;}
+.toast.show{opacity:1;}
+
+/* MOBILE NAV */
+#nav-mobile{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--surface);border-top:1px solid var(--border);z-index:100;justify-content:space-around;align-items:center;}
+.mni{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--sub);padding:8px 12px;border-radius:10px;transition:0.15s;position:relative;}
+.mni.active,.mni:hover{color:var(--blue);}
+.mni-icon{font-size:1.3rem;}
+.mni-lbl{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.mni-badge{position:absolute;top:4px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;display:none;}
+.mni-badge.show{display:block;}
+
+@media(max-width:900px){
+  #sidebar{display:none;}
+  #nav-mobile{display:flex;}
+  #main{margin-left:0;padding:16px 14px 70px;}
+  .msg-layout{grid-template-columns:1fr;height:auto;}
+  .msg-sidebar{display:none;}
+  .msg-sidebar.show-mobile{display:flex;height:60vh;}
+  .profile-stats-row{grid-template-columns:repeat(2,1fr);}
+  .admin-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .profile-hero{flex-direction:column;align-items:center;}
+  .chrono-big{font-size:4rem;}
+}
+
+/* SEPARATOR */
+.sep{border:none;border-top:1px solid var(--border);margin:18px 0;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 20px;color:var(--sub);}
+.empty-icon{font-size:3rem;margin-bottom:10px;}
+.empty-txt{font-weight:700;font-size:0.95rem;}
+.empty-sub{font-size:0.82rem;margin-top:6px;}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
 
 /* SCROLLBAR */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
-
-/* CONFIRM MODAL */
-.confirm-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);z-index:500;display:none;align-items:center;justify-content:center;}
-.confirm-modal.open{display:flex;}
-.confirm-box{max-width:340px;width:90%;text-align:center;padding:32px;}
-.confirm-box p{color:var(--sub);font-size:0.9rem;margin:8px 0 24px;}
-
-/* ADMIN NOTE */
-.admin-only-notice{text-align:center;padding:40px;color:var(--sub);}
-
-/* NOTIFICATION DOT */
-.notif-dot{width:8px;height:8px;background:var(--red);border-radius:50%;display:none;}
-.notif-dot.visible{display:inline-block;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 </style>
 </head>
 <body>
 
-<!-- MESH BACKGROUND -->
-<div id="mesh-bg">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="blob blob3"></div>
-  <div class="blob blob4"></div>
-  <div class="blob blob5"></div>
-</div>
+<div id="mesh-bg"><div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div></div>
+<div id="toast-el" class="toast"></div>
 
-<!-- AUTH PAGE -->
+<!-- ============ AUTH PAGE ============ -->
 <div id="auth-page">
-  <div class="auth-card glass-card">
-    <div class="auth-logo">STARTGO<span>.</span></div>
-    <div class="auth-sub">Chronométrage biométrique de précision</div>
-    <div id="auth-error" class="auth-error"></div>
-    <div id="signup-extra" style="display:none;">
-      <label class="form-label">Pseudo</label>
-      <input type="text" id="reg-name" class="glass-input" placeholder="Ton pseudo">
-      <label class="form-label">Rôle</label>
-      <select id="reg-role" class="glass-input">
-        <option value="athlete">🏃 Athlète</option>
-        <option value="coach">🧑‍💼 Coach</option>
-      </select>
+  <div class="auth-wrap">
+    <div class="auth-logo">START<em>GO</em></div>
+    <div class="auth-tagline">Chronométrage Biométrique Pro</div>
+    <div class="card">
+      <div id="auth-err" class="auth-err"></div>
+      <div id="signup-extra" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Pseudo</label>
+          <input type="text" id="reg-name" class="fi" placeholder="Ton pseudo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rôle</label>
+          <select id="reg-role" class="fi">
+            <option value="athlete">🏃 Athlète</option>
+            <option value="coach">🧑‍💼 Coach</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="auth-email" class="fi" placeholder="email@exemple.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="auth-pass" class="fi" placeholder="••••••••" onkeypress="if(event.key==='Enter')handleAuth()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleAuth()">CONTINUER</button>
+      <div class="auth-switch"><span id="auth-toggle" onclick="toggleAuth()">Créer un compte</span></div>
     </div>
-    <label class="form-label">Email</label>
-    <input type="email" id="auth-email" class="glass-input" placeholder="email@exemple.com">
-    <label class="form-label">Mot de passe</label>
-    <input type="password" id="auth-pass" class="glass-input" placeholder="••••••••">
-    <div style="margin-top:20px;">
-      <button class="btn-liquid btn-blue btn-full" onclick="handleAuth()" id="auth-btn">CONTINUER</button>
-    </div>
-    <span class="auth-toggle" id="auth-toggle-link" onclick="toggleAuthMode()">Créer un compte</span>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ============ APP ============ -->
 <div id="app">
-  <!-- SIDEBAR DESKTOP -->
-  <nav id="sidebar-desktop">
-    <div class="sidebar-logo">STARTGO<span>.</span></div>
-    <div class="nav-items" id="sidebar-nav"></div>
-    <div class="sidebar-user">
-      <div class="sidebar-user-name" id="sidebar-name">—</div>
-      <div class="sidebar-user-role" id="sidebar-role">—</div>
+  <nav id="sidebar">
+    <div class="sidebar-head">
+      <div class="logo">START<em>GO</em></div>
+      <div class="sidebar-user-row" onclick="goToMyProfile()">
+        <div class="avatar av-sm" id="sb-avatar"></div>
+        <div>
+          <div class="sidebar-uname" id="sb-name">—</div>
+          <div class="sidebar-urole" id="sb-role">—</div>
+        </div>
+      </div>
     </div>
+    <div id="sidebar-nav"></div>
   </nav>
 
-  <!-- MAIN -->
-  <main id="main-content">
+  <main id="main">
 
-    <!-- ====== ATHLETE PAGES ====== -->
-    <!-- PAGE: Training -->
+    <!-- ===== ATHLETE PAGES ===== -->
     <div id="page-training" class="page">
-      <div class="sec-title">STARTING BLOCK</div>
-      <div id="training-config" class="glass-card">
-        <div class="slider-row">
-          <div class="slider-label"><span class="label">Temps de concentration (s)</span><span id="conc-val" style="font-weight:700">3s</span></div>
-          <input type="range" id="conc-slider" min="1" max="10" value="3" oninput="document.getElementById('conc-val').innerText=this.value+'s'">
+      <div class="page-header"><div class="page-title">⚡ Starting Block</div></div>
+      <div id="tr-config" class="card">
+        <div class="card-title">Configuration</div>
+        <div class="slider-wrap">
+          <div class="slider-lbl"><span>Concentration</span><span class="slider-val" id="conc-v">3s</span></div>
+          <input type="range" id="sl-conc" min="1" max="10" value="3" oninput="document.getElementById('conc-v').textContent=this.value+'s'">
         </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="label">Distance</span><span id="dist-val" style="font-weight:700">10m</span></div>
-          <input type="range" id="dist-slider" min="5" max="500" value="10" oninput="document.getElementById('dist-val').innerText=this.value+'m'">
+        <div class="slider-wrap">
+          <div class="slider-lbl"><span>Distance</span><span class="slider-val" id="dist-v">10 m</span></div>
+          <input type="range" id="sl-dist" min="5" max="500" value="10" oninput="document.getElementById('dist-v').textContent=this.value+' m'">
         </div>
-        <button class="btn-liquid btn-blue btn-full" style="margin-top:8px;" onclick="startSequence()">▶ DÉPART</button>
+        <button class="btn btn-primary btn-full" style="margin-top:8px;font-size:1rem;padding:14px;" onclick="startSequence()">▶ DÉPART</button>
       </div>
 
-      <div id="training-running" style="display:none;">
-        <div class="glass-card" style="text-align:center;">
-          <div id="state-indicator" class="state-indicator state-idle">EN ATTENTE</div>
-          <div id="react-display" style="font-size:1.3rem; color:var(--sub); margin-bottom:4px;">Réaction</div>
-          <div id="react-time" style="font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; color:var(--yellow); margin-bottom:16px;">0.000</div>
-          <div id="chrono-label" style="font-size:1.3rem; color:var(--sub); margin-bottom:4px;">Course</div>
-          <div id="chrono-display">0.00</div>
-          <div class="btn-row" id="run-btns" style="margin-top:24px; display:none;">
-            <button class="btn-liquid btn-green" onclick="triggerLift()">🦶 PIED LEVÉ</button>
-            <button class="btn-liquid btn-red" onclick="triggerFinish()">🏁 ARRIVÉE</button>
+      <div id="tr-running" style="display:none;">
+        <div class="card" style="text-align:center;">
+          <div style="margin-bottom:8px;"><span id="state-pill" class="state-pill sp-idle">EN ATTENTE</span></div>
+          <div style="margin-bottom:4px;font-size:0.75rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1px;">Temps de Réaction</div>
+          <div class="chrono-react" id="react-val">0.000</div>
+          <div style="margin:8px 0 4px;font-size:0.75rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1px;">Temps de Course</div>
+          <div class="chrono-big" id="course-val" style="color:var(--blue);">0.00</div>
+          <div id="tr-btns" style="display:none;margin-top:20px;display:none;">
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button class="btn btn-warning" onclick="triggerLift()">🦶 PIED LEVÉ</button>
+              <button class="btn btn-danger" onclick="triggerFinish()">🏁 ARRIVÉE</button>
+            </div>
           </div>
-          <div id="false-start-msg" style="display:none; color:var(--red); font-weight:800; font-size:1.1rem; margin-top:12px;">⚠️ FAUX DÉPART</div>
+          <div id="false-msg" style="display:none;color:var(--red);font-weight:800;font-size:1.1rem;margin-top:14px;">⚠️ FAUX DÉPART !</div>
         </div>
       </div>
 
-      <div id="training-results" style="display:none;">
-        <div class="glass-card" style="text-align:center;">
-          <div class="label" style="margin-bottom:16px;">RÉSULTATS DE SESSION</div>
-          <div class="stats-row">
-            <div class="stat-box glass-card" style="margin:0;">
-              <div class="label">Réaction</div>
-              <div class="stat-val" id="res-react" style="color:var(--yellow)">—</div>
-              <div style="font-size:0.75rem; color:var(--sub);">secondes</div>
-            </div>
-            <div class="stat-box glass-card" style="margin:0;">
-              <div class="label">Course</div>
-              <div class="stat-val" id="res-time" style="color:var(--blue)">—</div>
-              <div style="font-size:0.75rem; color:var(--sub);">secondes</div>
-            </div>
+      <div id="tr-results" style="display:none;">
+        <div class="card">
+          <div class="card-title">🏆 Résultats</div>
+          <div class="profile-stats-row">
+            <div class="profile-stat"><div class="profile-stat-val" id="r-react" style="color:var(--yellow)">—</div><div class="profile-stat-lbl">Réaction (s)</div></div>
+            <div class="profile-stat"><div class="profile-stat-val" id="r-time" style="color:var(--blue)">—</div><div class="profile-stat-lbl">Course (s)</div></div>
+            <div class="profile-stat"><div class="profile-stat-val" id="r-kmh" style="color:var(--green)">—</div><div class="profile-stat-lbl">km/h</div></div>
+            <div class="profile-stat"><div class="profile-stat-val" id="r-dist" style="color:var(--sub)">—</div><div class="profile-stat-lbl">Mètres</div></div>
           </div>
-          <div class="stats-row" style="margin-top:12px;">
-            <div class="stat-box glass-card" style="margin:0;">
-              <div class="label">Vitesse km/h</div>
-              <div class="stat-val" id="res-kmh" style="color:var(--green)">—</div>
-            </div>
-            <div class="stat-box glass-card" style="margin:0;">
-              <div class="label">Distance</div>
-              <div class="stat-val" id="res-dist" style="color:var(--sub)">—</div>
-              <div style="font-size:0.75rem; color:var(--sub);">mètres</div>
-            </div>
-          </div>
-          <button class="btn-liquid btn-blue" style="margin-top:20px;" onclick="resetTraining()">↺ NOUVELLE SESSION</button>
+          <button class="btn btn-primary btn-full" onclick="resetTraining()">↺ NOUVELLE SESSION</button>
         </div>
       </div>
     </div>
 
-    <!-- PAGE: Athlete Messages -->
+    <!-- ATHLETE MESSAGES -->
     <div id="page-ath-msg" class="page">
-      <div class="sec-title">MESSAGES</div>
-      <div class="glass-card">
-        <div id="no-coach-msg" style="text-align:center; padding:20px; color:var(--sub); display:none;">
-          Tu n'es pas encore lié à un coach. Rends-toi dans Paramètres pour entrer un code de liaison.
-        </div>
-        <div id="chat-wrapper">
-          <div id="chat-box"></div>
-          <div class="chat-input-row">
-            <input type="text" id="chat-input" class="glass-input" placeholder="Envoyer un message..." onkeypress="if(event.key==='Enter') sendMsg()">
-            <button class="chat-send" onclick="sendMsg()">↑</button>
-          </div>
-        </div>
-      </div>
+      <div class="page-header"><div class="page-title">💬 Messages</div></div>
+      <div id="msg-container-ath"></div>
     </div>
 
-    <!-- PAGE: Athlete History -->
+    <!-- ATHLETE HISTORY -->
     <div id="page-history" class="page">
-      <div class="sec-title">HISTORIQUE</div>
-      <div id="history-list"></div>
+      <div class="page-header"><div class="page-title">📊 Historique</div></div>
+      <div id="history-list"><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-txt">Aucune session</div><div class="empty-sub">Lance une session depuis Entraînement</div></div></div>
     </div>
 
-    <!-- PAGE: Athlete Settings -->
+    <!-- ATHLETE PROFILE -->
+    <div id="page-ath-profile" class="page">
+      <div class="page-header"><div class="page-title">👤 Mon Profil</div></div>
+      <div id="profile-content-ath"></div>
+    </div>
+
+    <!-- ATHLETE SETTINGS -->
     <div id="page-ath-settings" class="page">
-      <div class="sec-title">PARAMÈTRES</div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">PROFIL</div>
-        <label class="form-label">Pseudo</label>
-        <input type="text" id="s-name" class="glass-input" style="color:var(--blue);">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div><label class="form-label">Poids (kg)</label><input type="number" id="s-weight" class="glass-input"></div>
-          <div><label class="form-label">Taille (cm)</label><input type="number" id="s-height" class="glass-input"></div>
+      <div class="page-header"><div class="page-title">⚙️ Paramètres</div></div>
+      <div class="card">
+        <div class="card-title">Liaison Coach</div>
+        <div id="ath-coach-linked" style="display:none;background:var(--green-light);border-radius:10px;padding:12px;margin-bottom:14px;font-weight:700;color:var(--green);"></div>
+        <div class="form-group">
+          <label class="form-label">Code de liaison (6 caractères)</label>
+          <input type="text" id="pair-code-inp" class="fi" placeholder="ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-size:1.2rem;">
         </div>
-        <label class="form-label">Niveau de pratique</label>
-        <select id="s-level" class="glass-input">
-          <option>Loisir</option><option>Compétition</option><option>Elite</option>
-        </select>
-        <button class="btn-liquid btn-blue" style="margin-top:12px;" onclick="saveProfile()">ENREGISTRER</button>
+        <button class="btn btn-success" onclick="linkToCoach()">🔗 SE LIER À UN COACH</button>
+        <button id="btn-unlink" class="btn btn-ghost btn-sm" style="margin-left:10px;display:none;" onclick="confirmAction('unlink-coach')">Dissocier</button>
       </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">LIAISON COACH</div>
-        <div id="coach-linked-info" style="display:none; margin-bottom:16px; padding:12px; border-radius:12px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2);">
-          <span style="color:var(--green); font-weight:700;">✓ Lié à : </span><span id="coach-name-display">—</span>
-        </div>
-        <label class="form-label">Code de liaison (6 caractères)</label>
-        <input type="text" id="pair-code-input" class="glass-input" placeholder="Ex: ABC123" maxlength="6" style="text-transform:uppercase; letter-spacing:4px;">
-        <button class="btn-liquid btn-green" style="margin-top:10px;" onclick="linkToCoach()">🔗 SE LIER À UN COACH</button>
-        <button id="unlink-coach-btn" class="btn-liquid btn-red" style="margin-top:10px; display:none;" onclick="unlinkCoach()">✕ DISSOCIER MON COACH</button>
+      <div class="card" id="ath-note-card" style="display:none;">
+        <div class="card-title">Notes de mon Coach</div>
+        <div class="note-display" id="ath-note-display">Aucune note.</div>
       </div>
-      <div class="glass-card" id="coach-notes-block" style="display:none;">
-        <div class="label" style="margin-bottom:12px;">NOTES DE MON COACH</div>
-        <div id="coach-note-display" style="color:var(--sub); font-size:0.9rem; line-height:1.7; white-space:pre-wrap;">Aucune note pour le moment.</div>
-      </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">APPARENCE</div>
-        <div class="toggle-wrap">
-          <div class="toggle" id="theme-toggle-ath" onclick="toggleTheme()"></div>
-          <span style="color:var(--sub); font-size:0.9rem;">Mode clair</span>
+      <div class="card">
+        <div class="card-title">Apparence</div>
+        <div class="toggle-row">
+          <span class="toggle-lbl">Mode sombre</span>
+          <div class="toggle" id="tgl-dark" onclick="toggleDark()"></div>
         </div>
       </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px; color:var(--red);">ZONE DANGER</div>
-        <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('disable-self')" style="margin-bottom:8px;">DÉSACTIVER MON COMPTE</button><br>
-        <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('delete-self')" style="margin-bottom:8px; margin-top:8px;">SUPPRIMER MON COMPTE</button>
-        <div class="sep"></div>
-        <button class="btn-liquid btn-sm" onclick="doSignOut()">DÉCONNEXION</button>
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Zone Danger</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-danger btn-sm" onclick="confirmAction('delete-self')">Supprimer mon compte</button>
+          <button class="btn btn-ghost btn-sm" onclick="doSignOut()">Déconnexion</button>
+        </div>
       </div>
     </div>
 
-    <!-- ====== COACH PAGES ====== -->
-    <!-- PAGE: Coach Athletes -->
+    <!-- ===== COACH PAGES ===== -->
     <div id="page-athletes" class="page">
-      <div class="sec-title">MES ATHLÈTES</div>
-      <div id="coach-athletes-list"></div>
+      <div class="page-header"><div class="page-title">👥 Mes Athlètes</div></div>
+      <div id="coach-ath-list"></div>
     </div>
 
-    <!-- PAGE: Coach Messages -->
     <div id="page-coa-msg" class="page">
-      <div class="sec-title">MESSAGES</div>
-      <div class="glass-card" style="margin-bottom:14px;">
-        <div class="label" style="margin-bottom:10px;">CONVERSATION AVEC</div>
-        <select id="coa-chat-select" class="glass-input" onchange="loadCoachChat()">
-          <option value="">— Sélectionner un athlète —</option>
-        </select>
-      </div>
-      <div class="glass-card">
-        <div id="chat-box-coa"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-coa" class="glass-input" placeholder="Envoyer un message..." onkeypress="if(event.key==='Enter') sendMsgCoach()">
-          <button class="chat-send" onclick="sendMsgCoach()">↑</button>
-        </div>
-      </div>
+      <div class="page-header"><div class="page-title">💬 Messages</div></div>
+      <div id="msg-container-coa"></div>
     </div>
 
-    <!-- PAGE: Coach Liaison -->
     <div id="page-liaison" class="page">
-      <div class="sec-title">LIAISON ATHLÈTES</div>
-      <div class="glass-card" style="text-align:center;">
-        <div class="label" style="margin-bottom:16px;">CODE DE LIAISON</div>
-        <div id="pair-code-display" class="pair-code">— — — — — —</div>
-        <div class="pair-bar-wrap"><div class="pair-bar" id="pair-progress" style="width:0%"></div></div>
-        <div id="pair-timer-label" style="font-size:0.8rem; color:var(--sub); margin-top:8px;"></div>
-        <button class="btn-liquid btn-green" style="margin-top:20px;" onclick="genPairCode()">GÉNÉRER UN CODE</button>
-      </div>
-      <div class="glass-card" style="margin-top:16px;">
-        <button class="btn-liquid btn-red" onclick="confirmAction('unlink-all')">DISSOCIER TOUS MES ATHLÈTES</button>
+      <div class="page-header"><div class="page-title">🔗 Liaison</div></div>
+      <div class="card" style="text-align:center;">
+        <div class="card-title">Code de liaison éphémère</div>
+        <div class="pair-code-display" id="pair-code-disp">— — — — — —</div>
+        <div class="pair-progress-wrap"><div class="pair-progress" id="pair-prog" style="width:0%"></div></div>
+        <div id="pair-timer" style="font-size:0.8rem;color:var(--sub);margin-top:8px;"></div>
+        <button class="btn btn-success" style="margin-top:20px;" onclick="genPairCode()">GÉNÉRER UN CODE</button>
       </div>
     </div>
 
-    <!-- PAGE: Coach Settings -->
     <div id="page-coa-settings" class="page">
-      <div class="sec-title">PARAMÈTRES</div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">PROFIL</div>
-        <label class="form-label">Pseudo</label>
-        <input type="text" id="cs-name" class="glass-input" style="color:var(--green);">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div><label class="form-label">Poids (kg)</label><input type="number" id="cs-weight" class="glass-input"></div>
-          <div><label class="form-label">Taille (cm)</label><input type="number" id="cs-height" class="glass-input"></div>
-        </div>
-        <button class="btn-liquid btn-green" style="margin-top:12px;" onclick="saveCoachProfile()">ENREGISTRER</button>
-      </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">APPARENCE</div>
-        <div class="toggle-wrap">
-          <div class="toggle" id="theme-toggle-coa" onclick="toggleTheme()"></div>
-          <span style="color:var(--sub); font-size:0.9rem;">Mode clair</span>
+      <div class="page-header"><div class="page-title">⚙️ Paramètres</div></div>
+      <div class="card">
+        <div class="card-title">Apparence</div>
+        <div class="toggle-row">
+          <span class="toggle-lbl">Mode sombre</span>
+          <div class="toggle" id="tgl-dark-coa" onclick="toggleDark()"></div>
         </div>
       </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px; color:var(--red);">ZONE DANGER</div>
-        <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('disable-self')" style="margin-bottom:8px;">DÉSACTIVER MON COMPTE</button><br>
-        <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('delete-self')" style="margin-bottom:8px; margin-top:8px;">SUPPRIMER MON COMPTE</button>
-        <div class="sep"></div>
-        <button class="btn-liquid btn-sm" onclick="doSignOut()">DÉCONNEXION</button>
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Zone Danger</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-danger btn-sm" onclick="confirmAction('delete-self')">Supprimer mon compte</button>
+          <button class="btn btn-ghost btn-sm" onclick="doSignOut()">Déconnexion</button>
+        </div>
       </div>
     </div>
 
-    <!-- ====== ADMIN PAGES ====== -->
-    <!-- PAGE: Admin Users -->
+    <!-- ===== ADMIN PAGES ===== -->
     <div id="page-admin-users" class="page">
-      <div class="sec-title">GESTION UTILISATEURS</div>
-      <div class="glass-card" style="overflow-x:auto;">
-        <table class="admin-table" id="admin-users-table">
-          <thead><tr>
-            <th>Pseudo</th><th>Rôle</th><th>IP / Ville</th><th>Statut</th><th>Actions</th>
-          </tr></thead>
-          <tbody id="admin-users-body"></tbody>
-        </table>
+      <div class="page-header"><div class="page-title">👤 Utilisateurs</div></div>
+      <div class="admin-filter-row" id="admin-filters">
+        <button class="filter-btn active" data-role="" onclick="filterAdminUsers('')">Tous</button>
+        <button class="filter-btn" data-role="athlete" onclick="filterAdminUsers('athlete')">Athlètes</button>
+        <button class="filter-btn" data-role="coach" onclick="filterAdminUsers('coach')">Coachs</button>
+        <button class="filter-btn" data-role="admin" onclick="filterAdminUsers('admin')">Admins</button>
       </div>
+      <div id="admin-users-grid" class="admin-grid"></div>
     </div>
 
-    <!-- PAGE: Admin Messages -->
     <div id="page-admin-msg" class="page">
-      <div class="sec-title">MESSAGES ADMIN</div>
-      <div class="glass-card" style="margin-bottom:14px;">
-        <div class="label" style="margin-bottom:10px;">CONVERSATION AVEC</div>
-        <select id="admin-chat-select" class="glass-input" onchange="loadAdminChat()">
-          <option value="">— Sélectionner un utilisateur —</option>
-        </select>
-      </div>
-      <div class="glass-card">
-        <div id="chat-box-admin" style="height:320px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:16px; margin-bottom:14px; border:1px solid var(--glass-border); border-radius:16px;"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input-admin" class="glass-input" placeholder="Envoyer un message..." onkeypress="if(event.key==='Enter') sendMsgAdmin()">
-          <button class="chat-send" onclick="sendMsgAdmin()">↑</button>
-        </div>
-      </div>
+      <div class="page-header"><div class="page-title">💬 Messages Admin</div></div>
+      <div id="msg-container-admin"></div>
     </div>
 
-    <!-- PAGE: Admin Logs -->
     <div id="page-logs" class="page">
-      <div class="sec-title">JOURNAUX D'ACTIVITÉ</div>
-      <div class="glass-card" style="margin-bottom:14px;">
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <select id="log-filter-type" class="glass-input" style="flex:1;" onchange="filterLogs()">
-            <option value="">Tous les types</option>
-            <option value="auth">Auth</option>
-            <option value="session">Session</option>
-            <option value="modify">Modification</option>
-            <option value="liaison">Liaison</option>
-            <option value="delete">Suppression</option>
-          </select>
-        </div>
+      <div class="page-header"><div class="page-title">📋 Journaux</div></div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <select id="log-type-filter" class="fi" style="max-width:200px;" onchange="renderLogs()">
+          <option value="">Tous les types</option>
+          <option value="auth">Auth</option>
+          <option value="session">Session</option>
+          <option value="modify">Modification</option>
+          <option value="liaison">Liaison</option>
+          <option value="delete">Suppression</option>
+        </select>
       </div>
       <div id="logs-list"></div>
     </div>
 
-    <!-- PAGE: Admin Settings -->
     <div id="page-admin-settings" class="page">
-      <div class="sec-title">PARAMÈTRES</div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">PROFIL</div>
-        <label class="form-label">Pseudo</label>
-        <input type="text" id="as-name" class="glass-input" style="color:var(--red);">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div><label class="form-label">Poids (kg)</label><input type="number" id="as-weight" class="glass-input"></div>
-          <div><label class="form-label">Taille (cm)</label><input type="number" id="as-height" class="glass-input"></div>
-        </div>
-        <button class="btn-liquid btn-red" style="margin-top:12px;" onclick="saveAdminProfile()">ENREGISTRER</button>
-      </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px;">APPARENCE</div>
-        <div class="toggle-wrap">
-          <div class="toggle" id="theme-toggle-admin" onclick="toggleTheme()"></div>
-          <span style="color:var(--sub); font-size:0.9rem;">Mode clair</span>
+      <div class="page-header"><div class="page-title">⚙️ Paramètres Admin</div></div>
+      <div class="card">
+        <div class="card-title">Apparence</div>
+        <div class="toggle-row">
+          <span class="toggle-lbl">Mode sombre</span>
+          <div class="toggle" id="tgl-dark-admin" onclick="toggleDark()"></div>
         </div>
       </div>
-      <div class="glass-card">
-        <div class="label" style="margin-bottom:16px; color:var(--red);">ZONE DANGER</div>
-        <button class="btn-liquid btn-sm" onclick="doSignOut()">DÉCONNEXION</button>
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Zone Danger</div>
+        <button class="btn btn-ghost btn-sm" onclick="doSignOut()">Déconnexion</button>
       </div>
+    </div>
+
+    <!-- PROFILE VIEW (shared) -->
+    <div id="page-profile-view" class="page">
+      <div id="profile-view-content"></div>
     </div>
 
   </main>
 
-  <!-- MOBILE NAV -->
   <nav id="nav-mobile"></nav>
 </div>
 
-<!-- ATHLETE DETAIL MODAL (Coach) -->
-<div class="modal-overlay" id="modal-ath-detail">
-  <div class="modal-card glass-card">
-    <button class="modal-close" onclick="closeModal('modal-ath-detail')">✕</button>
-    <div id="modal-ath-name" class="sec-title" style="font-size:1.2rem; margin-bottom:4px;"></div>
-    <div id="modal-ath-info" style="color:var(--sub); font-size:0.83rem; margin-bottom:20px;"></div>
-    <div class="label" style="margin-bottom:8px;">NIVEAU</div>
-    <select id="modal-ath-level" class="glass-input" style="margin-bottom:16px;"></select>
-    <button class="btn-liquid btn-green btn-sm" onclick="saveAthleteLevel()" style="margin-bottom:20px;">Modifier le niveau</button>
-    <div class="sep"></div>
-    <div class="label" style="margin-bottom:8px;">GRAPHIQUE — Réaction (ms)</div>
-    <div class="sparkline-container" id="modal-sparkline" style="margin-bottom:20px;"></div>
-    <div class="label" style="margin-bottom:8px;">DERNIERS CHRONOS</div>
-    <div id="modal-ath-history" style="margin-bottom:20px;"></div>
-    <div class="label" style="margin-bottom:8px;">NOTES COACH</div>
-    <textarea class="coach-note" id="modal-coach-note" placeholder="Entrez vos instructions, objectifs..."></textarea>
-    <button class="btn-liquid btn-green btn-sm" onclick="saveCoachNote()" style="margin-top:8px; margin-bottom:16px;">SAUVEGARDER NOTE</button>
-    <div class="sep"></div>
-    <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('dissoc-athlete')">DISSOCIER CET ATHLÈTE</button>
+<!-- ===== MODALS ===== -->
+<!-- Athlete detail (coach) -->
+<div class="modal-bg" id="modal-ath-detail">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-ath-title">Fiche Athlète</div>
+      <button class="modal-close" onclick="closeModal('modal-ath-detail')">✕</button>
+    </div>
+    <div id="modal-ath-body"></div>
   </div>
 </div>
 
-<!-- ADMIN USER DETAIL MODAL -->
-<div class="modal-overlay" id="modal-admin-user">
-  <div class="modal-card glass-card">
-    <button class="modal-close" onclick="closeModal('modal-admin-user')">✕</button>
-    <div class="sec-title" style="font-size:1.2rem; margin-bottom:20px;">FICHE UTILISATEUR</div>
-    <label class="form-label">Pseudo</label><input type="text" id="admin-edit-name" class="glass-input">
-    <label class="form-label">Email</label><input type="text" id="admin-edit-email" class="glass-input" disabled>
-    <label class="form-label">Rôle</label>
-    <select id="admin-edit-role" class="glass-input">
-      <option value="athlete">Athlète</option>
-      <option value="coach">Coach</option>
-      <option value="admin">Admin</option>
-    </select>
-    <label class="form-label">Poids (kg)</label><input type="number" id="admin-edit-weight" class="glass-input">
-    <label class="form-label">Taille (cm)</label><input type="number" id="admin-edit-height" class="glass-input">
-    <label class="form-label">Niveau</label>
-    <select id="admin-edit-level" class="glass-input">
-      <option>Loisir</option><option>Compétition</option><option>Elite</option>
-    </select>
-    <div id="admin-edit-network" style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px; margin:12px 0; font-size:0.82rem; color:var(--sub);"></div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
-      <button class="btn-liquid btn-blue btn-sm" onclick="saveAdminUserEdit()">ENREGISTRER</button>
-      <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('admin-disable-user')">DÉSACTIVER</button>
-      <button class="btn-liquid btn-red btn-sm" onclick="confirmAction('admin-delete-user')">SUPPRIMER</button>
+<!-- Admin user edit -->
+<div class="modal-bg" id="modal-admin-user">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Modifier Utilisateur</div>
+      <button class="modal-close" onclick="closeModal('modal-admin-user')">✕</button>
+    </div>
+    <div id="modal-admin-body"></div>
+  </div>
+</div>
+
+<!-- Profile edit -->
+<div class="modal-bg" id="modal-profile-edit">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Modifier le Profil</div>
+      <button class="modal-close" onclick="closeModal('modal-profile-edit')">✕</button>
+    </div>
+    <div id="modal-profile-body"></div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="confirm-bg" id="confirm-bg">
+  <div class="confirm-box">
+    <div class="confirm-title" id="conf-title">Confirmer</div>
+    <div class="confirm-msg" id="conf-msg"></div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">Annuler</button>
+      <button class="btn btn-danger btn-sm" onclick="execConfirm()">Confirmer</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
-<div class="confirm-modal" id="confirm-modal">
-  <div class="confirm-box glass-card">
-    <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem;" id="confirm-title">Confirmer l'action</div>
-    <p id="confirm-msg">Cette action est irréversible.</p>
-    <div style="display:flex; gap:10px; justify-content:center;">
-      <button class="btn-liquid btn-sm" onclick="closeConfirm()">ANNULER</button>
-      <button class="btn-liquid btn-red btn-sm" id="confirm-ok-btn" onclick="executeConfirm()">CONFIRMER</button>
-    </div>
-  </div>
-</div>
+<input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
 
 <script>
 // ============================================================
-// FIREBASE
+// FIREBASE INIT
 // ============================================================
-const config = {
-  apiKey: "AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU",
-  authDomain: "startgo-project.firebaseapp.com",
-  projectId: "startgo-project",
-  storageBucket: "startgo-project.firebasestorage.app",
-  messagingSenderId: "920233789220",
-  appId: "1:920233789220:web:9f8a8d9fd3a3add39a55b1"
+const fbConfig = {
+  apiKey:"AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU",
+  authDomain:"startgo-project.firebaseapp.com",
+  projectId:"startgo-project",
+  storageBucket:"startgo-project.firebasestorage.app",
+  messagingSenderId:"920233789220",
+  appId:"1:920233789220:web:9f8a8d9fd3a3add39a55b1"
 };
-firebase.initializeApp(config);
+firebase.initializeApp(fbConfig);
 const auth = firebase.auth(), db = firebase.firestore();
-let currentUser = null;
-let unsubListeners = [];
+let CU = null; // current user data
+let subs = [];  // firestore unsubscribers
+
+// ============================================================
+// AVATAR COLORS
+// ============================================================
+const AV_COLORS = ['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2','#be185d','#0f766e'];
+function avatarColor(str){let h=0;for(let c of (str||'?'))h=((h<<5)-h)+c.charCodeAt(0);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
+function avatarInitial(name){return (name||'?')[0].toUpperCase();}
+function makeAvatar(name,photoURL,size='av-md'){
+  const d=document.createElement('div');
+  d.className=`avatar ${size}`;
+  if(photoURL){const img=document.createElement('img');img.src=photoURL;d.appendChild(img);}
+  else{d.style.background=avatarColor(name);d.textContent=avatarInitial(name);}
+  return d;
+}
 
 // ============================================================
 // AUTH
 // ============================================================
-let isSignup = false;
-function toggleAuthMode() {
-  isSignup = !isSignup;
-  document.getElementById('signup-extra').style.display = isSignup ? 'block' : 'none';
-  document.getElementById('auth-toggle-link').textContent = isSignup ? 'J\'ai déjà un compte' : 'Créer un compte';
+let isSignup=false;
+function toggleAuth(){
+  isSignup=!isSignup;
+  document.getElementById('signup-extra').style.display=isSignup?'block':'none';
+  document.getElementById('auth-toggle').textContent=isSignup?"J'ai déjà un compte":"Créer un compte";
+}
+async function handleAuth(){
+  const e=document.getElementById('auth-email').value.trim();
+  const p=document.getElementById('auth-pass').value;
+  const err=document.getElementById('auth-err');
+  err.textContent='';
+  const errs={'auth/wrong-password':'Mot de passe incorrect.','auth/user-not-found':'Aucun compte trouvé.','auth/email-already-in-use':'Email déjà utilisé.','auth/weak-password':'Mot de passe trop court.','auth/invalid-email':'Email invalide.','auth/invalid-credential':'Email ou mot de passe incorrect.'};
+  try{
+    if(isSignup){
+      const name=document.getElementById('reg-name').value.trim();
+      const role=document.getElementById('reg-role').value;
+      if(!name){err.textContent='Pseudo requis.';return;}
+      const r=await auth.createUserWithEmailAndPassword(e,p);
+      await db.collection('users').doc(r.user.uid).set({uid:r.user.uid,name,role,email:e,coachId:null,weight:null,height:null,level:'Loisir',bio:'',photoURL:null,dateJoin:firebase.firestore.FieldValue.serverTimestamp(),status:'active',network_stats:{}});
+      await writeLog('auth',`Nouveau compte: ${name} (${role})`,r.user.uid);
+    }else{await auth.signInWithEmailAndPassword(e,p);}
+  }catch(ex){err.textContent=errs[ex.code]||ex.message;}
 }
 
-async function handleAuth() {
-  const e = document.getElementById('auth-email').value.trim();
-  const p = document.getElementById('auth-pass').value;
-  const errEl = document.getElementById('auth-error');
-  errEl.textContent = '';
-  try {
-    if (isSignup) {
-      const name = document.getElementById('reg-name').value.trim();
-      const role = document.getElementById('reg-role').value;
-      if (!name) { errEl.textContent = 'Le pseudo est requis.'; return; }
-      const r = await auth.createUserWithEmailAndPassword(e, p);
-      await db.collection('users').doc(r.user.uid).set({
-        uid: r.user.uid, name, role, email: e,
-        coachId: null, weight: null, height: null, level: 'Loisir', goal: '',
-        dateJoin: firebase.firestore.FieldValue.serverTimestamp(),
-        status: 'active', network_stats: {}
-      });
-      await writeLog('auth', `Nouveau compte créé: ${name} (${role})`, r.user.uid);
-    } else {
-      await auth.signInWithEmailAndPassword(e, p);
-    }
-  } catch(err) {
-    const msgs = {
-      'auth/wrong-password': 'Mot de passe incorrect.',
-      'auth/user-not-found': 'Aucun compte trouvé.',
-      'auth/email-already-in-use': 'Email déjà utilisé.',
-      'auth/weak-password': 'Mot de passe trop court (6 caractères min).',
-      'auth/invalid-email': 'Email invalide.'
-    };
-    errEl.textContent = msgs[err.code] || err.message;
-  }
-}
-
-auth.onAuthStateChanged(async (u) => {
-  if (u) {
-    const snap = await db.collection('users').doc(u.uid).get();
-    if (!snap.exists) { auth.signOut(); return; }
-    currentUser = { ...snap.data(), uid: u.uid };
+auth.onAuthStateChanged(async u=>{
+  if(u){
+    const s=await db.collection('users').doc(u.uid).get();
+    if(!s.exists){await auth.signOut();return;}
+    CU={...s.data(),uid:u.uid};
     await initNetwork(u.uid);
-    document.getElementById('auth-page').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initUI(currentUser.role);
-    await writeLog('auth', `Connexion: ${currentUser.name}`, u.uid);
-  } else {
-    document.getElementById('auth-page').style.display = 'flex';
-    document.getElementById('app').style.display = 'none';
-    currentUser = null;
-    unsubListeners.forEach(u => u && u());
-    unsubListeners = [];
+    document.getElementById('auth-page').style.display='none';
+    document.getElementById('app').style.display='block';
+    buildUI(CU.role);
+    writeLog('auth',`Connexion: ${CU.name}`,u.uid);
+  }else{
+    document.getElementById('auth-page').style.display='flex';
+    document.getElementById('app').style.display='none';
+    subs.forEach(f=>f&&f());subs=[];CU=null;
   }
 });
 
-async function initNetwork(uid) {
-  try {
-    const res = await fetch('https://ipapi.co/json/');
-    const d = await res.json();
-    await db.collection('users').doc(uid).update({
-      network_stats: { ip: d.ip, isp: d.org, city: d.city, date: Date.now() }
-    });
-  } catch(e) {}
+async function initNetwork(uid){
+  try{const r=await fetch('https://ipapi.co/json/');const d=await r.json();await db.collection('users').doc(uid).update({network_stats:{ip:d.ip,isp:d.org,city:d.city,date:Date.now()}});}catch(e){}
 }
-
-function doSignOut() {
-  unsubListeners.forEach(u => u && u());
-  auth.signOut();
-}
+function doSignOut(){subs.forEach(f=>f&&f());subs=[];auth.signOut();}
 
 // ============================================================
-// UI INIT
+// UI BUILD
 // ============================================================
-const NAV_DEFS = {
-  athlete: [
-    { id:'training', icon:'🏃', label:'Entraînement' },
-    { id:'ath-msg', icon:'💬', label:'Messages', notif:true },
-    { id:'history', icon:'📊', label:'Historique' },
-    { id:'ath-settings', icon:'⚙️', label:'Paramètres' }
-  ],
-  coach: [
-    { id:'athletes', icon:'👥', label:'Athlètes' },
-    { id:'coa-msg', icon:'💬', label:'Messages', notif:true },
-    { id:'liaison', icon:'🔗', label:'Liaison' },
-    { id:'coa-settings', icon:'⚙️', label:'Paramètres' }
-  ],
-  admin: [
-    { id:'admin-users', icon:'👤', label:'Utilisateurs' },
-    { id:'admin-msg', icon:'💬', label:'Messages' },
-    { id:'logs', icon:'📋', label:'Logs' },
-    { id:'admin-settings', icon:'⚙️', label:'Paramètres' }
-  ]
+const NAV={
+  athlete:[{id:'training',icon:'⚡',lbl:'Entraînement'},{id:'ath-msg',icon:'💬',lbl:'Messages',notif:true},{id:'history',icon:'📊',lbl:'Historique'},{id:'ath-profile',icon:'👤',lbl:'Mon Profil'},{id:'ath-settings',icon:'⚙️',lbl:'Paramètres'}],
+  coach:[{id:'athletes',icon:'👥',lbl:'Athlètes'},{id:'coa-msg',icon:'💬',lbl:'Messages',notif:true},{id:'liaison',icon:'🔗',lbl:'Liaison'},{id:'coa-settings',icon:'⚙️',lbl:'Paramètres'}],
+  admin:[{id:'admin-users',icon:'👤',lbl:'Utilisateurs'},{id:'admin-msg',icon:'💬',lbl:'Messages'},{id:'logs',icon:'📋',lbl:'Logs'},{id:'admin-settings',icon:'⚙️',lbl:'Paramètres'}]
 };
+const ROLE_COLORS={athlete:'var(--blue)',coach:'var(--green)',admin:'var(--red)'};
 
-function initUI(role) {
-  const nav = NAV_DEFS[role] || NAV_DEFS.athlete;
-  const colors = { athlete: 'var(--blue)', coach: 'var(--green)', admin: 'var(--red)' };
+function buildUI(role){
+  const nav=NAV[role]||NAV.athlete;
+  // Sidebar user
+  const avEl=document.getElementById('sb-avatar');
+  avEl.innerHTML='';
+  if(CU.photoURL){const img=document.createElement('img');img.src=CU.photoURL;avEl.appendChild(img);}
+  else{avEl.style.background=avatarColor(CU.name);avEl.textContent=avatarInitial(CU.name);}
+  document.getElementById('sb-name').textContent=CU.name;
+  document.getElementById('sb-name').style.color=ROLE_COLORS[role];
+  document.getElementById('sb-role').textContent=role.charAt(0).toUpperCase()+role.slice(1);
 
-  // Sidebar name
-  document.getElementById('sidebar-name').textContent = currentUser.name;
-  document.getElementById('sidebar-name').style.color = colors[role];
-  document.getElementById('sidebar-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
-
-  // Build sidebar nav
-  const sNav = document.getElementById('sidebar-nav');
-  sNav.innerHTML = '';
-  nav.forEach(item => {
-    const d = document.createElement('div');
-    d.className = 'nav-item';
-    d.id = 'nav-' + item.id;
-    d.innerHTML = `${item.icon} ${item.label}${item.notif ? '<span class="notif-dot" id="notif-dot-'+item.id+'"></span>' : ''}`;
-    d.onclick = () => showPage(item.id);
-    sNav.appendChild(d);
+  // Sidebar nav
+  const sn=document.getElementById('sidebar-nav');
+  sn.innerHTML=`<div class="nav-section">Navigation</div>`;
+  nav.forEach(item=>{
+    const d=document.createElement('div');
+    d.className='ni';d.id='nav-'+item.id;
+    d.innerHTML=`<span class="ni-icon">${item.icon}</span>${item.lbl}${item.notif?`<span class="badge" id="badge-${item.id}"></span>`:''}`;
+    d.onclick=()=>showPage(item.id);
+    sn.appendChild(d);
   });
 
-  // Build mobile nav
-  const mNav = document.getElementById('nav-mobile');
-  mNav.innerHTML = '';
-  nav.forEach(item => {
-    const d = document.createElement('div');
-    d.className = 'mob-nav-item';
-    d.id = 'mnav-' + item.id;
-    d.innerHTML = `<span style="font-size:1.4rem">${item.icon}</span><span>${item.label}</span>${item.notif ? '<span class="mob-badge" id="mbadge-'+item.id+'"></span>' : ''}`;
-    d.onclick = () => showPage(item.id);
-    mNav.appendChild(d);
+  // Mobile nav
+  const mn=document.getElementById('nav-mobile');
+  mn.innerHTML='';
+  nav.slice(0,5).forEach(item=>{
+    const d=document.createElement('div');
+    d.className='mni';d.id='mnav-'+item.id;
+    d.innerHTML=`<div class="mni-icon">${item.icon}</div><div class="mni-lbl">${item.lbl}</div>${item.notif?`<div class="mni-badge" id="mbadge-${item.id}"></div>`:''}`;
+    d.onclick=()=>showPage(item.id);
+    mn.appendChild(d);
   });
 
-  // Load profile data
-  loadProfileForms();
-
-  // Go to first page
-  const first = nav[0].id;
-  showPage(first);
-
-  // Load role-specific data
-  if (role === 'athlete') {
-    listenAthleteHistory();
-    listenAthleteMessages();
-    loadCoachInfo();
-  } else if (role === 'coach') {
+  // Load data
+  if(role==='athlete'){
+    buildAthProfile();
+    loadAthSettings();
+    listenHistory();
+    buildMsgUI('ath');
+    loadCoachNote();
+  }else if(role==='coach'){
     listenCoachAthletes();
-    loadCoachChatAthletes();
-  } else if (role === 'admin') {
+    buildMsgUI('coa');
+  }else if(role==='admin'){
     listenAdminUsers();
     listenLogs();
-    loadAdminChatUsers();
+    buildMsgUI('admin');
   }
+
+  showPage(nav[0].id);
 }
 
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const pg = document.getElementById('page-' + pageId);
-  if (pg) pg.classList.add('active');
-
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const ni = document.getElementById('nav-' + pageId);
-  if (ni) ni.classList.add('active');
-
-  document.querySelectorAll('.mob-nav-item').forEach(n => n.classList.remove('active'));
-  const mn = document.getElementById('mnav-' + pageId);
-  if (mn) mn.classList.add('active');
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const ni=document.getElementById('nav-'+id);
+  if(ni)ni.classList.add('active');
+  document.querySelectorAll('.mni').forEach(n=>n.classList.remove('active'));
+  const mn=document.getElementById('mnav-'+id);
+  if(mn)mn.classList.add('active');
 }
+function goToMyProfile(){showPage(CU.role==='athlete'?'ath-profile':'profile-view');}
 
 // ============================================================
-// PROFILE FORMS
+// PROFILE PAGES
 // ============================================================
-function loadProfileForms() {
-  const u = currentUser;
-  // Athlete
-  if (document.getElementById('s-name')) {
-    document.getElementById('s-name').value = u.name || '';
-    document.getElementById('s-weight').value = u.weight || '';
-    document.getElementById('s-height').value = u.height || '';
-    if (document.getElementById('s-level')) document.getElementById('s-level').value = u.level || 'Loisir';
+function buildAthProfile(){
+  const c=document.getElementById('profile-content-ath');
+  c.innerHTML='';
+  c.appendChild(renderProfileCard(CU,true));
+}
+
+function renderProfileCard(u,editable){
+  const wrap=document.createElement('div');
+  // Hero
+  const hero=document.createElement('div');
+  hero.className='card';
+  const heroInner=document.createElement('div');
+  heroInner.className='profile-hero';
+
+  const photowrap=document.createElement('div');
+  photowrap.className='profile-photo-wrap';
+  const av=makeAvatar(u.name,u.photoURL,'av-xl');
+  photowrap.appendChild(av);
+  if(editable){
+    const pbtn=document.createElement('button');
+    pbtn.className='profile-photo-btn';pbtn.textContent='📷';
+    pbtn.onclick=()=>document.getElementById('photo-upload').click();
+    photowrap.appendChild(pbtn);
   }
-  // Coach
-  if (document.getElementById('cs-name')) {
-    document.getElementById('cs-name').value = u.name || '';
-    document.getElementById('cs-weight').value = u.weight || '';
-    document.getElementById('cs-height').value = u.height || '';
+  heroInner.appendChild(photowrap);
+
+  const infos=document.createElement('div');
+  infos.style.flex='1';
+  const nameEl=document.createElement('div');
+  nameEl.style.cssText=`font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:${ROLE_COLORS[u.role]||'var(--text)'};`;
+  nameEl.textContent=u.name;
+  infos.appendChild(nameEl);
+
+  const roleEl=document.createElement('div');
+  roleEl.innerHTML=`<span class="badge-role b-${u.role||'athlete'}">${(u.role||'athlete').toUpperCase()}</span>`;
+  roleEl.style.marginBottom='10px';
+  infos.appendChild(roleEl);
+
+  const bioEl=document.createElement('div');
+  bioEl.style.cssText='color:var(--sub);font-size:0.88rem;line-height:1.6;margin-bottom:10px;';
+  bioEl.textContent=u.bio||'Aucune bio.';
+  infos.appendChild(bioEl);
+
+  if(editable){
+    const editBtn=document.createElement('button');
+    editBtn.className='btn btn-ghost btn-sm';editBtn.textContent='✏️ Modifier le profil';
+    editBtn.onclick=()=>openProfileEdit(u);
+    infos.appendChild(editBtn);
   }
-  // Admin
-  if (document.getElementById('as-name')) {
-    document.getElementById('as-name').value = u.name || '';
-    document.getElementById('as-weight').value = u.weight || '';
-    document.getElementById('as-height').value = u.height || '';
-  }
-}
+  heroInner.appendChild(infos);
+  hero.appendChild(heroInner);
+  wrap.appendChild(hero);
 
-async function saveProfile() {
-  const d = { name: document.getElementById('s-name').value, weight: document.getElementById('s-weight').value, height: document.getElementById('s-height').value, level: document.getElementById('s-level').value };
-  await db.collection('users').doc(currentUser.uid).update(d);
-  Object.assign(currentUser, d);
-  document.getElementById('sidebar-name').textContent = d.name;
-  await writeLog('modify', `Profil mis à jour: ${d.name}`);
-  showToast('Profil enregistré ✓');
-}
-
-async function saveCoachProfile() {
-  const d = { name: document.getElementById('cs-name').value, weight: document.getElementById('cs-weight').value, height: document.getElementById('cs-height').value };
-  await db.collection('users').doc(currentUser.uid).update(d);
-  Object.assign(currentUser, d);
-  document.getElementById('sidebar-name').textContent = d.name;
-  await writeLog('modify', `Profil coach mis à jour: ${d.name}`);
-  showToast('Profil enregistré ✓');
-}
-
-async function saveAdminProfile() {
-  const d = { name: document.getElementById('as-name').value, weight: document.getElementById('as-weight').value, height: document.getElementById('as-height').value };
-  await db.collection('users').doc(currentUser.uid).update(d);
-  Object.assign(currentUser, d);
-  document.getElementById('sidebar-name').textContent = d.name;
-  showToast('Profil enregistré ✓');
-}
-
-// ============================================================
-// THEME
-// ============================================================
-function toggleTheme() {
-  document.body.classList.toggle('light-mode');
-  const on = document.body.classList.contains('light-mode');
-  ['theme-toggle-ath','theme-toggle-coa','theme-toggle-admin'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('on', on);
+  // Stats
+  const statsCard=document.createElement('div');
+  statsCard.className='card';
+  const statsGrid=document.createElement('div');
+  statsGrid.className='profile-stats-row';
+  const stats=[
+    {val:u.weight?u.weight+'kg':'—',lbl:'Poids'},
+    {val:u.height?u.height+'cm':'—',lbl:'Taille'},
+    {val:u.level||'—',lbl:'Niveau'},
+    {val:u.role==='athlete'?'Athlète':'Coach',lbl:'Rôle'}
+  ];
+  stats.forEach(s=>{
+    const b=document.createElement('div');
+    b.className='profile-stat';
+    b.innerHTML=`<div class="profile-stat-val" style="font-size:1.2rem;">${s.val}</div><div class="profile-stat-lbl">${s.lbl}</div>`;
+    statsGrid.appendChild(b);
   });
-}
+  statsCard.appendChild(statsGrid);
+  wrap.appendChild(statsCard);
 
-// ============================================================
-// TOAST
-// ============================================================
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(30,41,59,0.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 20px;color:white;font-size:0.85rem;z-index:1000;transition:opacity 0.4s;';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2000);
-}
-
-// ============================================================
-// TRAINING STATE MACHINE (ATHLETE)
-// ============================================================
-let trainState = 'IDLE';
-let tBip = null, tLift = null, tFinish = null;
-let rafId = null;
-
-function startSequence() {
-  if (trainState !== 'IDLE') return;
-  trainState = 'WAIT';
-  document.getElementById('training-config').style.display = 'none';
-  document.getElementById('training-running').style.display = 'block';
-  document.getElementById('training-results').style.display = 'none';
-  document.getElementById('run-btns').style.display = 'none';
-  document.getElementById('false-start-msg').style.display = 'none';
-  setStateUI('WAIT', '⏳ CONCENTRATION');
-
-  const concTime = parseInt(document.getElementById('conc-slider').value) * 1000;
-  setTimeout(() => {
-    trainState = 'ALEA';
-    setStateUI('ALEA', '🔴 PRÊT...');
-    const delay = 1000 + Math.random() * 4000;
-    setTimeout(() => {
-      if (trainState !== 'ALEA') return;
-      playBip();
-      tBip = performance.now();
-      trainState = 'BIP';
-      setStateUI('BIP', '🟢 PARTEZ !');
-      document.getElementById('run-btns').style.display = 'flex';
-      document.getElementById('react-time').style.color = 'var(--yellow)';
-      startReactTimer();
-    }, delay);
-  }, concTime);
-}
-
-function startReactTimer() {
-  function tick() {
-    if (trainState !== 'BIP') return;
-    const t = (performance.now() - tBip) / 1000;
-    document.getElementById('react-time').textContent = t.toFixed(3);
-    rafId = requestAnimationFrame(tick);
+  // Sessions history preview if athlete
+  if(u.role==='athlete'){
+    const histCard=document.createElement('div');
+    histCard.className='card';
+    histCard.innerHTML='<div class="card-title">Dernières Sessions</div><div id="profile-hist-preview"></div>';
+    wrap.appendChild(histCard);
+    db.collection('history').where('uid','==',u.uid).orderBy('date','desc').limit(5).get().then(snap=>{
+      const el=document.getElementById('profile-hist-preview');
+      if(!el)return;
+      if(snap.empty){el.innerHTML='<div style="color:var(--sub);font-size:0.85rem;">Aucune session.</div>';return;}
+      let html='<div class="sparkline" style="margin-bottom:12px;">';
+      const vals=[];snap.forEach(d=>{if(d.data().react)vals.push(d.data().react*1000);});
+      const mx=Math.max(...vals,1);
+      vals.reverse().forEach(v=>html+=`<div class="spark" style="height:${(v/mx*100).toFixed(0)}%" title="${v.toFixed(0)}ms"></div>`);
+      html+='</div>';
+      snap.forEach(d=>{
+        const s=d.data();
+        html+=`<div class="h-card card-sm" style="grid-template-columns:1fr auto;"><div><div style="font-weight:800;font-size:0.88rem;">${s.name||'Session'}</div><div style="font-size:0.75rem;color:var(--sub);">${s.date?.toDate?s.date.toDate().toLocaleDateString('fr-FR'):''}</div></div><div class="h-metrics"><div class="h-met"><div class="h-met-lbl">Réaction</div><div class="h-met-val" style="color:var(--yellow)">${s.react?.toFixed(3)||'—'}s</div></div><div class="h-met"><div class="h-met-lbl">Course</div><div class="h-met-val" style="color:var(--blue)">${s.time?.toFixed(2)||'—'}s</div></div></div></div>`;
+      });
+      el.innerHTML=html;
+    });
   }
-  rafId = requestAnimationFrame(tick);
+  return wrap;
 }
 
-function triggerLift() {
-  if (trainState === 'WAIT' || trainState === 'ALEA') {
-    cancelAnimationFrame(rafId);
-    trainState = 'IDLE';
-    document.getElementById('false-start-msg').style.display = 'block';
-    document.getElementById('false-start-msg').className = '';
-    setStateUI('FALSE', '⚠️ FAUX DÉPART');
-    playFalseBip();
-    setTimeout(() => resetTraining(), 2500);
-    return;
+function openProfileEdit(u){
+  const body=document.getElementById('modal-profile-body');
+  body.innerHTML=`
+    <div class="form-group"><label class="form-label">Pseudo</label><input type="text" id="pe-name" class="fi" value="${u.name||''}"></div>
+    <div class="form-group"><label class="form-label">Bio</label><textarea id="pe-bio" class="bio-area">${u.bio||''}</textarea></div>
+    <div class="grid2">
+      <div class="form-group"><label class="form-label">Poids (kg)</label><input type="number" id="pe-weight" class="fi" value="${u.weight||''}"></div>
+      <div class="form-group"><label class="form-label">Taille (cm)</label><input type="number" id="pe-height" class="fi" value="${u.height||''}"></div>
+    </div>
+    ${u.role==='athlete'?`<div class="form-group"><label class="form-label">Niveau</label><select id="pe-level" class="fi"><option ${u.level==='Loisir'?'selected':''}>Loisir</option><option ${u.level==='Compétition'?'selected':''}>Compétition</option><option ${u.level==='Elite'?'selected':''}>Elite</option></select></div>`:''}
+    <button class="btn btn-primary btn-full" onclick="saveProfileEdit()">ENREGISTRER</button>`;
+  openModal('modal-profile-edit');
+}
+
+async function saveProfileEdit(){
+  const d={name:document.getElementById('pe-name').value,bio:document.getElementById('pe-bio').value,weight:document.getElementById('pe-weight')?.value||null,height:document.getElementById('pe-height')?.value||null};
+  const lvl=document.getElementById('pe-level');
+  if(lvl)d.level=lvl.value;
+  await db.collection('users').doc(CU.uid).update(d);
+  Object.assign(CU,d);
+  // Refresh sidebar avatar/name
+  document.getElementById('sb-name').textContent=CU.name;
+  buildAthProfile();
+  closeModal('modal-profile-edit');
+  writeLog('modify',`Profil mis à jour: ${CU.name}`);
+  showToast('Profil enregistré ✓');
+}
+
+// Photo upload (base64 stored in Firestore — for demo)
+function handlePhotoUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const b64=ev.target.result;
+    await db.collection('users').doc(CU.uid).update({photoURL:b64});
+    CU.photoURL=b64;
+    buildAthProfile();
+    // update sidebar
+    const avEl=document.getElementById('sb-avatar');
+    avEl.innerHTML='';const img=document.createElement('img');img.src=b64;avEl.appendChild(img);
+    showToast('Photo mise à jour ✓');
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+// ============================================================
+// TRAINING
+// ============================================================
+let tState='IDLE',tBip=null,tLift=null,rafId=null;
+function startSequence(){
+  if(tState!=='IDLE')return;
+  tState='WAIT';
+  document.getElementById('tr-config').style.display='none';
+  document.getElementById('tr-running').style.display='block';
+  document.getElementById('tr-results').style.display='none';
+  document.getElementById('tr-btns').style.display='none';
+  document.getElementById('false-msg').style.display='none';
+  setStatePill('WAIT','⏳ CONCENTRATION');
+  const conc=parseInt(document.getElementById('sl-conc').value)*1000;
+  setTimeout(()=>{
+    tState='ALEA';setStatePill('ALEA','🔴 PRÊT...');
+    const delay=1000+Math.random()*4000;
+    setTimeout(()=>{
+      if(tState!=='ALEA')return;
+      playBip();tBip=performance.now();tState='BIP';
+      setStatePill('BIP','🟢 PARTEZ !');
+      document.getElementById('tr-btns').style.display='block';
+      startReactRAF();
+    },delay);
+  },conc);
+}
+function startReactRAF(){
+  function t(){if(tState!=='BIP')return;document.getElementById('react-val').textContent=((performance.now()-tBip)/1000).toFixed(3);rafId=requestAnimationFrame(t);}
+  rafId=requestAnimationFrame(t);
+}
+function triggerLift(){
+  if(tState==='WAIT'||tState==='ALEA'){
+    cancelAnimationFrame(rafId);tState='IDLE';
+    document.getElementById('false-msg').style.display='block';
+    setStatePill('FALSE','⚠️ FAUX DÉPART');playFalseBip();
+    setTimeout(resetTraining,2500);return;
   }
-  if (trainState !== 'BIP') return;
+  if(tState!=='BIP')return;
   cancelAnimationFrame(rafId);
-  tLift = performance.now();
-  const reactSec = (tLift - tBip) / 1000;
-  document.getElementById('react-time').textContent = reactSec.toFixed(3);
-  document.getElementById('react-time').style.color = 'var(--sub)';
-  trainState = 'RUN';
-  setStateUI('RUN', '🏃 EN COURSE');
-  startCourseTimer();
+  tLift=performance.now();
+  document.getElementById('react-val').textContent=((tLift-tBip)/1000).toFixed(3);
+  document.getElementById('react-val').style.opacity='0.5';
+  tState='RUN';setStatePill('RUN','🏃 EN COURSE');
+  function t(){if(tState!=='RUN')return;document.getElementById('course-val').textContent=((performance.now()-tLift)/1000).toFixed(2);rafId=requestAnimationFrame(t);}
+  rafId=requestAnimationFrame(t);
 }
-
-function startCourseTimer() {
-  function tick() {
-    if (trainState !== 'RUN') return;
-    const t = (performance.now() - tLift) / 1000;
-    document.getElementById('chrono-display').textContent = t.toFixed(2);
-    rafId = requestAnimationFrame(tick);
-  }
-  rafId = requestAnimationFrame(tick);
-}
-
-async function triggerFinish() {
-  if (trainState !== 'RUN') return;
+async function triggerFinish(){
+  if(tState!=='RUN')return;
   cancelAnimationFrame(rafId);
-  tFinish = performance.now();
-  const reactSec = (tLift - tBip) / 1000;
-  const courseSec = (tFinish - tLift) / 1000;
-  const dist = parseInt(document.getElementById('dist-slider').value);
-  const kmh = ((dist / courseSec) * 3.6).toFixed(1);
-  trainState = 'END';
-
-  document.getElementById('res-react').textContent = reactSec.toFixed(3) + 's';
-  document.getElementById('res-time').textContent = courseSec.toFixed(2) + 's';
-  document.getElementById('res-kmh').textContent = kmh + ' km/h';
-  document.getElementById('res-dist').textContent = dist;
-
-  document.getElementById('training-running').style.display = 'none';
-  document.getElementById('training-results').style.display = 'block';
-
-  // Save to Firestore
-  const sessionName = 'Session ' + new Date().toLocaleDateString('fr-FR');
-  await db.collection('history').add({
-    uid: currentUser.uid,
-    name: sessionName,
-    react: parseFloat(reactSec.toFixed(3)),
-    time: parseFloat(courseSec.toFixed(2)),
-    distance: dist,
-    speed: parseFloat(kmh),
-    date: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  await writeLog('session', `Nouvelle session: ${courseSec.toFixed(2)}s, réaction: ${reactSec.toFixed(3)}s`);
+  const tEnd=performance.now();
+  const react=(tLift-tBip)/1000;
+  const course=(tEnd-tLift)/1000;
+  const dist=parseInt(document.getElementById('sl-dist').value);
+  const kmh=((dist/course)*3.6).toFixed(1);
+  tState='END';
+  document.getElementById('r-react').textContent=react.toFixed(3)+'s';
+  document.getElementById('r-time').textContent=course.toFixed(2)+'s';
+  document.getElementById('r-kmh').textContent=kmh;
+  document.getElementById('r-dist').textContent=dist;
+  document.getElementById('tr-running').style.display='none';
+  document.getElementById('tr-results').style.display='block';
+  const sName='Session '+new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+  await db.collection('history').add({uid:CU.uid,name:sName,react:parseFloat(react.toFixed(3)),time:parseFloat(course.toFixed(2)),distance:dist,speed:parseFloat(kmh),date:firebase.firestore.FieldValue.serverTimestamp()});
+  writeLog('session',`Session: ${course.toFixed(2)}s réaction: ${react.toFixed(3)}s dist: ${dist}m`);
 }
-
-function resetTraining() {
-  trainState = 'IDLE';
-  cancelAnimationFrame(rafId);
-  document.getElementById('training-config').style.display = 'block';
-  document.getElementById('training-running').style.display = 'none';
-  document.getElementById('training-results').style.display = 'none';
-  document.getElementById('chrono-display').textContent = '0.00';
-  document.getElementById('react-time').textContent = '0.000';
-  document.getElementById('false-start-msg').style.display = 'none';
+function resetTraining(){
+  tState='IDLE';cancelAnimationFrame(rafId);
+  document.getElementById('tr-config').style.display='block';
+  document.getElementById('tr-running').style.display='none';
+  document.getElementById('tr-results').style.display='none';
+  document.getElementById('course-val').textContent='0.00';
+  document.getElementById('react-val').textContent='0.000';
+  document.getElementById('react-val').style.opacity='1';
+  document.getElementById('false-msg').style.display='none';
 }
-
-function setStateUI(state, label) {
-  const el = document.getElementById('state-indicator');
-  el.textContent = label;
-  el.className = 'state-indicator';
-  const map = { WAIT:'state-wait', ALEA:'state-alea', BIP:'state-bip', RUN:'state-run', END:'state-end', FALSE:'state-false' };
-  el.classList.add(map[state] || 'state-idle');
+function setStatePill(state,lbl){
+  const el=document.getElementById('state-pill');
+  el.textContent=lbl;
+  el.className='state-pill';
+  const map={WAIT:'sp-wait',ALEA:'sp-wait pulse',BIP:'sp-bip',RUN:'sp-run',FALSE:'sp-false',END:'sp-end'};
+  (map[state]||'sp-idle').split(' ').forEach(c=>el.classList.add(c));
 }
 
 // ============================================================
 // AUDIO
 // ============================================================
-let audioCtx = null;
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-function playBip() {
-  const ctx = getAudioCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.frequency.value = 880;
-  osc.type = 'sine';
-  gain.gain.setValueAtTime(0.4, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-  osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.15);
-}
-function playFalseBip() {
-  const ctx = getAudioCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.frequency.value = 220;
-  osc.type = 'sawtooth';
-  gain.gain.setValueAtTime(0.3, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-  osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
-}
+let actx=null;
+function getACtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function playBip(){const c=getACtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(0.5,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.2);o.start();o.stop(c.currentTime+0.2);}
+function playFalseBip(){const c=getACtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=200;o.type='square';g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.5);o.start();o.stop(c.currentTime+0.5);}
 
 // ============================================================
-// ATHLETE HISTORY
+// HISTORY
 // ============================================================
-function listenAthleteHistory() {
-  const unsub = db.collection('history').where('uid','==',currentUser.uid).orderBy('date','desc').limit(30).onSnapshot(snap => {
-    const list = document.getElementById('history-list');
-    list.innerHTML = '';
-    if (snap.empty) {
-      list.innerHTML = '<div class="sec-sub">Aucune session enregistrée.</div>';
-      return;
-    }
-    snap.forEach(doc => {
-      const d = doc.data();
-      const card = document.createElement('div');
-      card.className = 'h-card';
-      const dateStr = d.date?.toDate ? d.date.toDate().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
-      card.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="h-del" onclick="deleteHistory('${doc.id}')">×</button>
-          <input type="text" class="h-name-input" value="${d.name||'Session'}" onchange="renameHistory('${doc.id}',this.value)">
-        </div>
-        <div class="h-metrics">
-          <div><div class="label">Réaction</div><span style="color:var(--yellow)">${d.react?.toFixed(3)||'—'}s</span></div>
-          <div><div class="label">Course</div><span style="color:var(--blue)">${d.time?.toFixed(2)||'—'}s</span></div>
-          <div><div class="label">Vitesse</div><span style="color:var(--green)">${d.speed||'—'} km/h</span></div>
-          <div><div class="label">Dist.</div><span>${d.distance||'—'}m</span></div>
-        </div>
-        <div style="font-size:0.72rem; color:var(--sub); text-align:right;">${dateStr}</div>`;
-      list.appendChild(card);
+function listenHistory(){
+  const unsub=db.collection('history').where('uid','==',CU.uid).orderBy('date','desc').limit(50).onSnapshot(snap=>{
+    const el=document.getElementById('history-list');
+    if(!el)return;
+    if(snap.empty){el.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-txt">Aucune session</div><div class="empty-sub">Lance une session depuis Entraînement</div></div>';return;}
+    el.innerHTML='';
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const dateStr=d.date?.toDate?d.date.toDate().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+      const card=document.createElement('div');
+      card.className='h-card';
+      card.style.gridTemplateColumns='auto 1fr auto auto';
+      const del=document.createElement('button');del.className='h-del';del.textContent='×';del.onclick=()=>confirmAction('del-hist',doc.id);
+      const nameInp=document.createElement('input');nameInp.type='text';nameInp.className='h-edit';nameInp.value=d.name||'Session';nameInp.onchange=()=>db.collection('history').doc(doc.id).update({name:nameInp.value});
+      const metrics=document.createElement('div');metrics.className='h-metrics';
+      metrics.innerHTML=`
+        <div class="h-met"><div class="h-met-lbl">Date</div><div style="font-size:0.78rem;color:var(--sub);font-weight:600;">${dateStr}</div></div>
+        <div class="h-met"><div class="h-met-lbl">Réaction</div><div class="h-met-val" style="color:var(--yellow)">${d.react!=null?d.react.toFixed(3)+'s':'—'}</div></div>
+        <div class="h-met"><div class="h-met-lbl">Course</div><div class="h-met-val" style="color:var(--blue)">${d.time!=null?d.time.toFixed(2)+'s':'—'}</div></div>
+        <div class="h-met"><div class="h-met-lbl">Vitesse</div><div class="h-met-val" style="color:var(--green)">${d.speed||'—'} km/h</div></div>
+        <div class="h-met"><div class="h-met-lbl">Dist.</div><div class="h-met-val">${d.distance||'—'}m</div></div>`;
+      card.appendChild(del);card.appendChild(nameInp);card.appendChild(metrics);
+      el.appendChild(card);
     });
   });
-  unsubListeners.push(unsub);
-}
-
-async function renameHistory(id, name) {
-  await db.collection('history').doc(id).update({ name });
-  await writeLog('modify', `Session renommée: ${name}`);
-}
-
-function deleteHistory(id) {
-  pendingAction = { type: 'delete-history', id };
-  showConfirm('Supprimer la session ?', 'Cette session sera supprimée définitivement.');
+  subs.push(unsub);
 }
 
 // ============================================================
-// ATHLETE MESSAGES
+// MESSAGING — INSTAGRAM STYLE
 // ============================================================
-let unsubAthMsg = null;
-function listenAthleteMessages() {
-  const cid = currentUser.coachId;
-  const noCoach = document.getElementById('no-coach-msg');
-  const wrapper = document.getElementById('chat-wrapper');
-  if (!cid) {
-    noCoach.style.display = 'block';
-    wrapper.style.display = 'none';
+let msgState={activeConvId:null,activeConvUser:null,msgUnsub:null,contacts:[],searchMode:false};
+
+function buildMsgUI(ctx){
+  const containers={'ath':'msg-container-ath','coa':'msg-container-coa','admin':'msg-container-admin'};
+  const el=document.getElementById(containers[ctx]);
+  if(!el)return;
+
+  // Build instagram-style layout
+  el.innerHTML='';
+  const layout=document.createElement('div');
+  layout.className='msg-layout';
+  layout.id=`msg-layout-${ctx}`;
+
+  // LEFT SIDEBAR
+  const lsb=document.createElement('div');
+  lsb.className='msg-sidebar';
+  lsb.innerHTML=`
+    <div class="msg-sidebar-head">
+      <div class="msg-sidebar-title">Messages</div>
+      <input type="text" class="msg-search" id="msg-search-${ctx}" placeholder="🔍 Rechercher un pseudo..." oninput="searchUsers('${ctx}',this.value)">
+    </div>
+    <div class="msg-list" id="msg-list-${ctx}"></div>`;
+  layout.appendChild(lsb);
+
+  // RIGHT AREA
+  const ra=document.createElement('div');
+  ra.className='msg-area';
+  ra.id=`msg-area-${ctx}`;
+  ra.innerHTML=`<div class="msg-empty"><div class="msg-empty-icon">💬</div><div style="font-weight:700;">Sélectionne une conversation</div><div style="font-size:0.82rem;color:var(--sub2);margin-top:4px;">ou recherche un utilisateur</div></div>`;
+  layout.appendChild(ra);
+
+  el.appendChild(layout);
+
+  // Load contacts
+  loadMsgContacts(ctx);
+}
+
+async function loadMsgContacts(ctx){
+  // Listen to chats involving current user
+  const listEl=document.getElementById(`msg-list-${ctx}`);
+  if(!listEl)return;
+
+  // Get all chats where I'm involved
+  const unsub=db.collection('chats').where('participants','array-contains',CU.uid).orderBy('lastDate','desc').onSnapshot(async snap=>{
+    msgState.contacts=[];
+    const promises=[];
+    snap.forEach(doc=>{
+      const c=doc.data();
+      const otherId=c.participants.find(id=>id!==CU.uid);
+      if(otherId) promises.push(
+        db.collection('users').doc(otherId).get().then(us=>{
+          if(us.exists) msgState.contacts.push({convId:doc.id,...c,otherUser:{...us.data(),uid:otherId}});
+        })
+      );
+    });
+    await Promise.all(promises);
+    renderContactList(ctx,msgState.contacts);
+  });
+  subs.push(unsub);
+}
+
+function renderContactList(ctx,contacts){
+  const listEl=document.getElementById(`msg-list-${ctx}`);
+  if(!listEl)return;
+  listEl.innerHTML='';
+  if(contacts.length===0){
+    listEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--sub);font-size:0.85rem;">Aucune conversation.<br>Recherche un utilisateur pour commencer.</div>';
     return;
   }
-  noCoach.style.display = 'none';
-  wrapper.style.display = 'block';
-  if (unsubAthMsg) unsubAthMsg();
-  unsubAthMsg = db.collection('chats').where('coachId','==',cid).orderBy('date','asc').onSnapshot(snap => {
-    const box = document.getElementById('chat-box');
-    box.innerHTML = '';
-    let hasUnread = false;
-    snap.forEach(doc => {
-      const m = doc.data();
-      const isMe = m.sender === currentUser.uid;
-      if (!isMe && !m.read) { hasUnread = true; db.collection('chats').doc(doc.id).update({read:true}); }
-      const div = document.createElement('div');
-      div.className = 'msg ' + (isMe ? 'me' : 'them');
-      div.textContent = m.text;
-      if (isMe) {
-        const del = document.createElement('button');
-        del.className = 'msg-del';
-        del.textContent = '×';
-        del.onclick = () => confirmDeleteMsg(doc.id, 'chat-box');
-        div.appendChild(del);
-        let pressTimer;
-        div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => confirmDeleteMsg(doc.id, 'chat-box'), 700); });
-        div.addEventListener('touchend', () => clearTimeout(pressTimer));
-      }
-      box.appendChild(div);
+  contacts.forEach(conv=>{
+    const ou=conv.otherUser;
+    const isRequest=conv.status==='request'&&conv.requestFrom!==CU.uid;
+    const div=document.createElement('div');
+    div.className='msg-contact'+(conv.convId===msgState.activeConvId?' active':'')+(isRequest?' request-pending':'');
+    const av=makeAvatar(ou.name,ou.photoURL,'av-sm');
+    const hasUnread=conv.lastSender!==CU.uid&&!conv.read;
+    div.innerHTML=`<div class="avatar av-sm" style="background:${avatarColor(ou.name)};flex-shrink:0;"></div>
+      <div class="msg-contact-info">
+        <div class="msg-contact-name">${ou.name}</div>
+        <div class="msg-contact-preview">${isRequest?'⚠️ Demande en attente':conv.lastMsg||'Nouvelle conversation'}</div>
+      </div>
+      <div class="msg-contact-meta">
+        <div class="msg-contact-time">${conv.lastDate?.toDate?formatTime(conv.lastDate.toDate()):''}</div>
+        ${hasUnread?'<div class="unread-dot"></div>':''}
+      </div>`;
+    div.querySelector('.avatar').textContent=avatarInitial(ou.name);
+    div.onclick=()=>openConversation(ctx,conv.convId,ou,conv.status,conv.requestFrom);
+    listEl.appendChild(div);
+  });
+}
+
+async function searchUsers(ctx,query){
+  const listEl=document.getElementById(`msg-list-${ctx}`);
+  if(!query.trim()){renderContactList(ctx,msgState.contacts);return;}
+  // Search Firestore by name prefix
+  const snap=await db.collection('users').where('name','>=',query).where('name','<=',query+'\uf8ff').limit(10).get();
+  listEl.innerHTML='<div style="padding:10px 16px;font-size:0.72rem;font-weight:800;color:var(--sub2);text-transform:uppercase;letter-spacing:1px;">Résultats</div>';
+  if(snap.empty){listEl.innerHTML+='<div style="padding:12px 16px;color:var(--sub);font-size:0.85rem;">Aucun résultat.</div>';return;}
+  snap.forEach(doc=>{
+    const u=doc.data();
+    if(u.uid===CU.uid)return;
+    const div=document.createElement('div');
+    div.className='search-result-item';
+    div.innerHTML=`<div class="avatar av-sm" style="background:${avatarColor(u.name)};"></div>
+      <div><div style="font-weight:800;font-size:0.9rem;">${u.name}</div><div style="font-size:0.75rem;color:var(--sub);">${u.role}</div></div>
+      <button class="btn btn-ghost btn-xs" style="margin-left:auto;">Contacter</button>`;
+    div.querySelector('.avatar').textContent=avatarInitial(u.name);
+    div.onclick=()=>startNewConversation(ctx,{...u,uid:doc.id});
+    listEl.appendChild(div);
+  });
+}
+
+async function startNewConversation(ctx,otherUser){
+  // Check if conv exists
+  const existing=msgState.contacts.find(c=>c.otherUser?.uid===otherUser.uid);
+  if(existing){openConversation(ctx,existing.convId,otherUser,existing.status,existing.requestFrom);return;}
+  // Create new conv with request status
+  const convRef=await db.collection('chats').add({
+    participants:[CU.uid,otherUser.uid],
+    lastMsg:'',lastDate:firebase.firestore.FieldValue.serverTimestamp(),
+    lastSender:CU.uid,read:false,
+    status:'request',requestFrom:CU.uid
+  });
+  openConversation(ctx,convRef.id,otherUser,'request',CU.uid);
+  document.getElementById(`msg-search-${ctx}`).value='';
+  writeLog('modify',`Nouvelle conversation: ${CU.name} → ${otherUser.name}`);
+}
+
+async function openConversation(ctx,convId,otherUser,status,requestFrom){
+  msgState.activeConvId=convId;
+  msgState.activeConvUser=otherUser;
+  const area=document.getElementById(`msg-area-${ctx}`);
+
+  // Build chat header
+  const roleColor=ROLE_COLORS[otherUser.role]||'var(--text)';
+  area.innerHTML=`
+    <div class="msg-chat-head">
+      <div class="avatar av-sm" style="background:${avatarColor(otherUser.name)};">${avatarInitial(otherUser.name)}</div>
+      <div>
+        <div class="msg-chat-head-name" style="color:${roleColor};" onclick="viewUserProfile('${otherUser.uid}')" style="cursor:pointer;">${otherUser.name}</div>
+        <div class="msg-chat-head-role"><span class="badge-role b-${otherUser.role||'athlete'}">${(otherUser.role||'').toUpperCase()}</span></div>
+      </div>
+      <button class="btn btn-ghost btn-xs" style="margin-left:auto;" onclick="viewUserProfile('${otherUser.uid}')">👤 Profil</button>
+    </div>
+    ${status==='request'&&requestFrom!==CU.uid?`<div class="req-banner"><div class="req-banner-txt">⚠️ ${otherUser.name} souhaite vous contacter</div><div class="req-actions"><button class="btn btn-success btn-xs" onclick="acceptRequest('${convId}','${ctx}')">Accepter</button><button class="btn btn-danger btn-xs" onclick="rejectRequest('${convId}','${ctx}')">Refuser</button></div></div>`:''}
+    ${status==='request'&&requestFrom===CU.uid?`<div class="req-banner" style="background:var(--blue-light);"><div class="req-banner-txt" style="color:var(--blue);">⏳ En attente d'acceptation</div></div>`:''}
+    <div class="chat-messages" id="chat-msgs-${ctx}"></div>
+    ${status!=='request'||requestFrom===CU.uid?`<div class="chat-input-wrap"><input type="text" class="chat-fi" id="chat-inp-${ctx}" placeholder="Aa" onkeypress="if(event.key==='Enter')sendMsgCtx('${ctx}','${convId}')"><button class="chat-send-btn" onclick="sendMsgCtx('${ctx}','${convId}')">↑</button></div>`:''}`;
+
+  // Listen messages
+  if(msgState.msgUnsub)msgState.msgUnsub();
+  msgState.msgUnsub=db.collection('chats').doc(convId).collection('messages').orderBy('date','asc').onSnapshot(snap=>{
+    const box=document.getElementById(`chat-msgs-${ctx}`);
+    if(!box)return;
+    box.innerHTML='';
+    snap.forEach(doc=>{
+      const m=doc.data();
+      const isMe=m.sender===CU.uid;
+      const row=document.createElement('div');
+      row.className='bubble-row '+(isMe?'me':'');
+      if(!isMe){const av=document.createElement('div');av.className='avatar av-sm';av.style.background=avatarColor(otherUser.name);av.textContent=avatarInitial(otherUser.name);row.appendChild(av);}
+      const bub=document.createElement('div');
+      bub.className='bubble '+(isMe?'me':'them');
+      bub.textContent=m.text;
+      const timeEl=document.createElement('div');
+      timeEl.className='bubble-time';
+      timeEl.textContent=m.date?.toDate?formatTime(m.date.toDate()):'';
+      bub.appendChild(timeEl);
+      row.appendChild(bub);
+      box.appendChild(row);
     });
-    box.scrollTop = box.scrollHeight;
-    const dot = document.getElementById('notif-dot-ath-msg');
-    const mbadge = document.getElementById('mbadge-ath-msg');
-    if (dot) dot.classList.toggle('visible', hasUnread);
-    if (mbadge) mbadge.style.display = hasUnread ? 'block' : 'none';
+    box.scrollTop=box.scrollHeight;
+    // Mark as read
+    db.collection('chats').doc(convId).update({read:true});
   });
-  unsubListeners.push(unsubAthMsg);
+  subs.push(msgState.msgUnsub);
+
+  // Refresh contact list highlight
+  renderContactList(ctx,msgState.contacts);
 }
 
-async function sendMsg() {
-  const txt = document.getElementById('chat-input').value.trim();
-  if (!txt || !currentUser.coachId) return;
-  document.getElementById('chat-input').value = '';
-  await db.collection('chats').add({
-    text: txt, sender: currentUser.uid, receiver: currentUser.coachId,
-    coachId: currentUser.coachId, date: Date.now(), read: false
-  });
+async function sendMsgCtx(ctx,convId){
+  const inp=document.getElementById(`chat-inp-${ctx}`);
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  const conv=msgState.contacts.find(c=>c.convId===convId);
+  if(conv?.status==='request'&&conv.requestFrom!==CU.uid)return;// can't send if pending
+  await db.collection('chats').doc(convId).collection('messages').add({text:txt,sender:CU.uid,date:firebase.firestore.FieldValue.serverTimestamp()});
+  await db.collection('chats').doc(convId).update({lastMsg:txt,lastDate:firebase.firestore.FieldValue.serverTimestamp(),lastSender:CU.uid,read:false,status:'accepted'});
 }
+
+async function acceptRequest(convId,ctx){
+  await db.collection('chats').doc(convId).update({status:'accepted'});
+  showToast('Demande acceptée ✓');
+  // Reload
+  const conv=msgState.contacts.find(c=>c.convId===convId);
+  if(conv)openConversation(ctx,convId,conv.otherUser,'accepted',conv.requestFrom);
+}
+async function rejectRequest(convId,ctx){
+  await db.collection('chats').doc(convId).delete();
+  msgState.activeConvId=null;
+  const area=document.getElementById(`msg-area-${ctx}`);
+  area.innerHTML='<div class="msg-empty"><div class="msg-empty-icon">💬</div><div style="font-weight:700;">Conversation refusée</div></div>';
+  showToast('Demande refusée');
+}
+
+async function viewUserProfile(uid){
+  const snap=await db.collection('users').doc(uid).get();
+  if(!snap.exists)return;
+  const u={...snap.data(),uid};
+  const pg=document.getElementById('profile-view-content');
+  pg.innerHTML='';
+  const backBtn=document.createElement('button');
+  backBtn.className='btn btn-ghost btn-sm';backBtn.style.marginBottom='16px';backBtn.textContent='← Retour';
+  backBtn.onclick=()=>history.back()||showPage(CU.role==='athlete'?'ath-msg':'coa-msg');
+  pg.appendChild(backBtn);
+  pg.appendChild(renderProfileCard(u,false));
+  showPage('profile-view');
+}
+
+function formatTime(d){if(!d)return '';const now=new Date();const diff=(now-d)/1000;if(diff<60)return 'maintenant';if(diff<3600)return Math.floor(diff/60)+'min';if(diff<86400)return Math.floor(diff/3600)+'h';return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});}
 
 // ============================================================
-// COACH INFO (Athlete)
+// ATHLETE SETTINGS
 // ============================================================
-async function loadCoachInfo() {
-  const cid = currentUser.coachId;
-  const btn = document.getElementById('unlink-coach-btn');
-  const info = document.getElementById('coach-linked-info');
-  if (cid) {
-    const snap = await db.collection('users').doc(cid).get();
-    if (snap.exists) {
-      document.getElementById('coach-name-display').textContent = snap.data().name;
-      info.style.display = 'block';
-      if (btn) btn.style.display = 'block';
-    }
-  }
-  // Load coach notes
-  const noteSnap = await db.collection('coachNotes').doc(currentUser.uid).get();
-  if (noteSnap.exists) {
-    document.getElementById('coach-notes-block').style.display = 'block';
-    document.getElementById('coach-note-display').textContent = noteSnap.data().content || 'Aucune note.';
+function loadAthSettings(){
+  if(CU.coachId){
+    document.getElementById('ath-coach-linked').style.display='block';
+    db.collection('users').doc(CU.coachId).get().then(s=>{
+      if(s.exists)document.getElementById('ath-coach-linked').innerHTML=`✓ Lié à <b>${s.data().name}</b>`;
+    });
+    document.getElementById('btn-unlink').style.display='inline-flex';
   }
 }
-
-async function linkToCoach() {
-  const code = document.getElementById('pair-code-input').value.trim().toUpperCase();
-  if (code.length < 6) { showToast('Code invalide'); return; }
-  const snap = await db.collection('pairing_codes').doc(code).get();
-  if (!snap.exists) { showToast('Code invalide ou expiré'); return; }
-  const data = snap.data();
-  if (data.expiresAt && Date.now() > data.expiresAt) { showToast('Code expiré'); return; }
-  await db.collection('users').doc(currentUser.uid).update({ coachId: data.coachId });
-  currentUser.coachId = data.coachId;
-  await writeLog('liaison', `Liaison coach/athlète créée`);
-  showToast('Liaison établie ✓');
-  loadCoachInfo();
-  listenAthleteMessages();
+async function linkToCoach(){
+  const code=document.getElementById('pair-code-inp').value.trim().toUpperCase();
+  if(code.length<6){showToast('Code invalide');return;}
+  const snap=await db.collection('pairing_codes').doc(code).get();
+  if(!snap.exists){showToast('Code invalide ou expiré');return;}
+  const data=snap.data();
+  if(data.expiresAt&&Date.now()>data.expiresAt){showToast('Code expiré');return;}
+  await db.collection('users').doc(CU.uid).update({coachId:data.coachId});
+  CU.coachId=data.coachId;
+  await writeLog('liaison',`Liaison coach: ${CU.name}`);
+  showToast('Lié au coach ✓');
+  loadAthSettings();
 }
-
-async function unlinkCoach() {
-  await db.collection('users').doc(currentUser.uid).update({ coachId: null });
-  currentUser.coachId = null;
-  document.getElementById('coach-linked-info').style.display = 'none';
-  document.getElementById('unlink-coach-btn').style.display = 'none';
-  await writeLog('liaison', `Athlète dissocié de son coach`);
+async function unlinkCoach(){
+  await db.collection('users').doc(CU.uid).update({coachId:null});
+  CU.coachId=null;
+  document.getElementById('ath-coach-linked').style.display='none';
+  document.getElementById('btn-unlink').style.display='none';
+  writeLog('liaison',`Dissociation coach: ${CU.name}`);
   showToast('Coach dissocié');
-  listenAthleteMessages();
 }
-
-// ============================================================
-// COACH — ATHLETES LIST
-// ============================================================
-let selectedAthlete = null;
-function listenCoachAthletes() {
-  const unsub = db.collection('users').where('coachId','==',currentUser.uid).onSnapshot(snap => {
-    const list = document.getElementById('coach-athletes-list');
-    list.innerHTML = '';
-    if (snap.empty) {
-      list.innerHTML = '<div class="sec-sub">Aucun athlète lié. Générez un code dans l\'onglet Liaison.</div>';
-      return;
-    }
-    snap.forEach(doc => {
-      const a = doc.data();
-      const card = document.createElement('div');
-      card.className = 'ath-card glass-card';
-      card.innerHTML = `
-        <div>
-          <div class="ath-name" style="color:var(--blue)">${a.name}</div>
-          <div style="font-size:0.78rem; color:var(--sub)">${a.level||'Loisir'} · ${a.weight||'?'}kg / ${a.height||'?'}cm</div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn-liquid btn-green btn-sm" onclick="openCoachChat('${doc.id}','${a.name}')">💬</button>
-          <button class="btn-liquid btn-blue btn-sm" onclick="openAthleteDetail('${doc.id}')">👁</button>
-        </div>`;
-      list.appendChild(card);
-    });
-  });
-  unsubListeners.push(unsub);
-}
-
-async function openAthleteDetail(uid) {
-  const snap = await db.collection('users').doc(uid).get();
-  const a = snap.data();
-  selectedAthlete = { ...a, uid };
-  document.getElementById('modal-ath-name').textContent = a.name;
-  document.getElementById('modal-ath-name').style.color = 'var(--blue)';
-  document.getElementById('modal-ath-info').textContent = `Poids: ${a.weight||'?'}kg · Taille: ${a.height||'?'}cm · IP: ${a.network_stats?.ip||'N/A'}`;
-  document.getElementById('modal-ath-level').innerHTML = ['Loisir','Compétition','Elite'].map(l => `<option ${a.level===l?'selected':''}>${l}</option>`).join('');
-  // History
-  const hSnap = await db.collection('history').where('uid','==',uid).orderBy('date','desc').limit(10).get();
-  let hHtml = '';
-  const sparkVals = [];
-  hSnap.forEach(d => {
-    const h = d.data();
-    hHtml += `<div class="h-card" style="margin-bottom:8px; padding:12px 16px;">
-      <div><div class="label">${h.date?.toDate?h.date.toDate().toLocaleDateString('fr-FR'):''}</div><b>${h.name||'Session'}</b></div>
-      <div style="font-size:0.82rem; text-align:right;">
-        <span style="color:var(--yellow)">${h.react?.toFixed(3)||'—'}s</span> · 
-        <span style="color:var(--blue)">${h.time?.toFixed(2)||'—'}s</span> · 
-        <span style="color:var(--green)">${h.speed||'—'} km/h</span>
-      </div></div>`;
-    if (h.react) sparkVals.push(h.react * 1000);
-  });
-  document.getElementById('modal-ath-history').innerHTML = hHtml || '<div style="color:var(--sub); font-size:0.85rem;">Aucune session.</div>';
-  // Sparkline
-  const spark = document.getElementById('modal-sparkline');
-  spark.innerHTML = '';
-  if (sparkVals.length) {
-    const max = Math.max(...sparkVals);
-    sparkVals.reverse().forEach(v => {
-      const bar = document.createElement('div');
-      bar.className = 'spark-bar';
-      bar.style.height = (v / max * 100) + '%';
-      bar.title = v.toFixed(0) + 'ms';
-      spark.appendChild(bar);
-    });
+async function loadCoachNote(){
+  if(!CU.coachId)return;
+  const snap=await db.collection('coachNotes').doc(CU.uid).get();
+  if(snap.exists&&snap.data().content){
+    document.getElementById('ath-note-card').style.display='block';
+    document.getElementById('ath-note-display').textContent=snap.data().content;
   }
-  // Coach note
-  const noteSnap = await db.collection('coachNotes').doc(uid).get();
-  document.getElementById('modal-coach-note').value = noteSnap.exists ? noteSnap.data().content || '' : '';
+}
+
+// ============================================================
+// COACH ATHLETES
+// ============================================================
+let selectedAth=null;
+function listenCoachAthletes(){
+  const unsub=db.collection('users').where('coachId','==',CU.uid).onSnapshot(snap=>{
+    const el=document.getElementById('coach-ath-list');
+    if(!el)return;
+    if(snap.empty){el.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-txt">Aucun athlète lié</div><div class="empty-sub">Génère un code dans Liaison</div></div>';return;}
+    el.innerHTML='';
+    snap.forEach(doc=>{
+      const a=doc.data();
+      const card=document.createElement('div');
+      card.className='card card-sm';
+      card.style.cursor='pointer';
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="avatar av-md" style="background:${avatarColor(a.name)};font-size:1.2rem;">${avatarInitial(a.name)}</div>
+          <div style="flex:1;">
+            <div style="font-weight:800;font-size:1rem;color:var(--blue);">${a.name}</div>
+            <div style="font-size:0.78rem;color:var(--sub);">${a.level||'Loisir'} · ${a.weight||'?'}kg / ${a.height||'?'}cm</div>
+            <div style="font-size:0.75rem;color:var(--sub2);margin-top:2px;">${a.bio||''}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openCoachAthDetail('${doc.id}')">Fiche</button>
+          </div>
+        </div>`;
+      card.onclick=()=>openCoachAthDetail(doc.id);
+      el.appendChild(card);
+    });
+  });
+  subs.push(unsub);
+}
+
+async function openCoachAthDetail(uid){
+  const snap=await db.collection('users').doc(uid).get();
+  const a={...snap.data(),uid};
+  selectedAth=a;
+  document.getElementById('modal-ath-title').textContent=a.name;
+  const body=document.getElementById('modal-ath-body');
+
+  const noteSnap=await db.collection('coachNotes').doc(uid).get();
+  const noteVal=noteSnap.exists?noteSnap.data().content||'':'';
+
+  const hSnap=await db.collection('history').where('uid','==',uid).orderBy('date','desc').limit(10).get();
+  let hHtml='';let sparkVals=[];
+  hSnap.forEach(d=>{const s=d.data();hHtml+=`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem;"><span>${s.name||'Session'}</span><span style="color:var(--yellow)">${s.react?.toFixed(3)||'—'}s</span><span style="color:var(--blue)">${s.time?.toFixed(2)||'—'}s</span><span style="color:var(--green)">${s.speed||'—'}km/h</span></div>`;if(s.react)sparkVals.push(s.react*1000);});
+
+  let sparkHtml='';
+  if(sparkVals.length){const mx=Math.max(...sparkVals);sparkVals.reverse().forEach(v=>{sparkHtml+=`<div class="spark" style="height:${(v/mx*100).toFixed(0)}%;background:var(--blue);" title="${v.toFixed(0)}ms"></div>`;});}
+
+  body.innerHTML=`
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;">
+      <div class="avatar av-lg" style="background:${avatarColor(a.name)};">${avatarInitial(a.name)}</div>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;color:var(--blue);">${a.name}</div>
+        <div style="font-size:0.82rem;color:var(--sub);">${a.weight||'?'}kg · ${a.height||'?'}cm · ${a.level||'Loisir'}</div>
+        <div style="font-size:0.82rem;color:var(--sub2);margin-top:4px;">${a.bio||''}</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Niveau (modifiable)</label>
+      <select id="modal-level" class="fi"><option ${a.level==='Loisir'?'selected':''}>Loisir</option><option ${a.level==='Compétition'?'selected':''}>Compétition</option><option ${a.level==='Elite'?'selected':''}>Elite</option></select>
+      <button class="btn btn-success btn-sm" style="margin-top:6px;" onclick="saveAthLevel()">Enregistrer niveau</button>
+    </div>
+    <div class="sep"></div>
+    <div class="card-title">Réactions (ms)</div>
+    <div class="sparkline" style="margin-bottom:16px;">${sparkHtml||'<div style="color:var(--sub);font-size:0.8rem;">Aucune donnée</div>'}</div>
+    <div class="card-title">Derniers Chronos</div>
+    <div style="margin-bottom:16px;">${hHtml||'<div style="color:var(--sub);font-size:0.85rem;">Aucune session.</div>'}</div>
+    <div class="sep"></div>
+    <div class="card-title">Notes Coach</div>
+    <textarea class="bio-area" id="modal-note" style="min-height:100px;">${noteVal}</textarea>
+    <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="saveCoachNote()">Sauvegarder note</button>
+    <div class="sep"></div>
+    <button class="btn btn-danger btn-xs" onclick="confirmAction('dissoc-ath')">Dissocier cet athlète</button>`;
   openModal('modal-ath-detail');
 }
 
-async function saveAthleteLevel() {
-  if (!selectedAthlete) return;
-  const level = document.getElementById('modal-ath-level').value;
-  await db.collection('users').doc(selectedAthlete.uid).update({ level });
-  showToast('Niveau mis à jour ✓');
+async function saveAthLevel(){
+  if(!selectedAth)return;
+  const l=document.getElementById('modal-level').value;
+  await db.collection('users').doc(selectedAth.uid).update({level:l});
+  showToast('Niveau mis à jour ✓');writeLog('modify',`Niveau ${selectedAth.name}: ${l}`);
+}
+async function saveCoachNote(){
+  if(!selectedAth)return;
+  const c=document.getElementById('modal-note').value;
+  await db.collection('coachNotes').doc(selectedAth.uid).set({coachId:CU.uid,content:c,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  writeLog('modify',`Note coach pour ${selectedAth.name}`);showToast('Note sauvegardée ✓');
 }
 
-async function saveCoachNote() {
-  if (!selectedAthlete) return;
-  const content = document.getElementById('modal-coach-note').value;
-  await db.collection('coachNotes').doc(selectedAthlete.uid).set({
-    coachId: currentUser.uid, content, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+// ============================================================
+// PAIRING
+// ============================================================
+let pairInt=null;
+async function genPairCode(){
+  if(pairInt)clearInterval(pairInt);
+  const code=Math.random().toString(36).substring(2,8).toUpperCase();
+  await db.collection('pairing_codes').doc(code).set({coachId:CU.uid,expiresAt:Date.now()+60000});
+  writeLog('liaison',`Code généré: ${code}`);
+  document.getElementById('pair-code-disp').textContent=code.split('').join(' ');
+  let rem=60;
+  document.getElementById('pair-prog').style.width='100%';
+  document.getElementById('pair-timer').textContent='60s restantes';
+  pairInt=setInterval(()=>{
+    rem--;
+    document.getElementById('pair-prog').style.width=(rem/60*100)+'%';
+    document.getElementById('pair-timer').textContent=rem+'s restantes';
+    if(rem<=0){clearInterval(pairInt);document.getElementById('pair-code-disp').textContent='— — — — — —';document.getElementById('pair-timer').textContent='';db.collection('pairing_codes').doc(code).delete();}
+  },1000);
+}
+
+// ============================================================
+// ADMIN — USERS (FIXED)
+// ============================================================
+let allAdminUsers=[];let adminRoleFilter='';
+let adminEditUid=null;
+
+function listenAdminUsers(){
+  // Listen to ALL users in real time
+  const unsub=db.collection('users').onSnapshot(snap=>{
+    allAdminUsers=[];
+    snap.forEach(doc=>{allAdminUsers.push({...doc.data(),uid:doc.id});});
+    renderAdminUsers();
+  },err=>{
+    console.error('Admin users error:',err);
+    document.getElementById('admin-users-grid').innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-txt">Erreur de chargement</div><div class="empty-sub">${err.message}</div></div>`;
   });
-  await writeLog('modify', `Note coach mise à jour pour ${selectedAthlete.name}`);
-  showToast('Note sauvegardée ✓');
+  subs.push(unsub);
 }
 
-// ============================================================
-// COACH MESSAGES
-// ============================================================
-let coachChatUnsub = null;
-function loadCoachChatAthletes() {
-  const unsub = db.collection('users').where('coachId','==',currentUser.uid).onSnapshot(snap => {
-    const sel = document.getElementById('coa-chat-select');
-    const adminSel = document.getElementById('admin-chat-select');
-    const prev = sel.value;
-    sel.innerHTML = '<option value="">— Sélectionner un athlète —</option>';
-    snap.forEach(doc => {
-      const opt = document.createElement('option');
-      opt.value = doc.id;
-      opt.textContent = doc.data().name;
-      sel.appendChild(opt);
-    });
-    if (prev) sel.value = prev;
-  });
-  unsubListeners.push(unsub);
+function filterAdminUsers(role){
+  adminRoleFilter=role;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.role===role));
+  renderAdminUsers();
 }
 
-function openCoachChat(uid, name) {
-  showPage('coa-msg');
-  const sel = document.getElementById('coa-chat-select');
-  sel.value = uid;
-  loadCoachChat();
-}
-
-function loadCoachChat() {
-  const athUid = document.getElementById('coa-chat-select').value;
-  if (!athUid) return;
-  if (coachChatUnsub) coachChatUnsub();
-  const box = document.getElementById('chat-box-coa');
-  box.style.cssText = 'height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:16px;margin-bottom:14px;border:1px solid var(--glass-border);border-radius:16px;';
-  coachChatUnsub = db.collection('chats').where('coachId','==',currentUser.uid).orderBy('date','asc').onSnapshot(snap => {
-    box.innerHTML = '';
-    snap.forEach(doc => {
-      const m = doc.data();
-      if (m.sender !== athUid && m.receiver !== athUid && m.sender !== currentUser.uid) return;
-      if (m.sender !== athUid && m.receiver !== athUid) return;
-      const isMe = m.sender === currentUser.uid;
-      const div = document.createElement('div');
-      div.className = 'msg ' + (isMe ? 'me' : 'them');
-      div.textContent = m.text;
-      if (isMe) {
-        const del = document.createElement('button');
-        del.className = 'msg-del'; del.textContent = '×';
-        del.onclick = () => confirmDeleteMsg(doc.id, 'chat-box-coa');
-        div.appendChild(del);
-      }
-      box.appendChild(div);
-    });
-    box.scrollTop = box.scrollHeight;
-  });
-  unsubListeners.push(coachChatUnsub);
-}
-
-async function sendMsgCoach() {
-  const txt = document.getElementById('chat-input-coa').value.trim();
-  const athUid = document.getElementById('coa-chat-select').value;
-  if (!txt || !athUid) return;
-  document.getElementById('chat-input-coa').value = '';
-  await db.collection('chats').add({
-    text: txt, sender: currentUser.uid, receiver: athUid,
-    coachId: currentUser.uid, date: Date.now(), read: false
+function renderAdminUsers(){
+  const el=document.getElementById('admin-users-grid');
+  if(!el)return;
+  const filtered=adminRoleFilter?allAdminUsers.filter(u=>u.role===adminRoleFilter):allAdminUsers;
+  if(filtered.length===0){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-txt">Aucun utilisateur trouvé</div><div class="empty-sub">Total en base: ${allAdminUsers.length}</div></div>`;
+    return;
+  }
+  el.innerHTML='';
+  filtered.forEach(u=>{
+    const card=document.createElement('div');
+    card.className='admin-user-card';
+    const av=document.createElement('div');av.className='avatar av-md';av.style.background=avatarColor(u.name);av.textContent=avatarInitial(u.name);
+    if(u.photoURL){const img=document.createElement('img');img.src=u.photoURL;av.innerHTML='';av.appendChild(img);}
+    card.innerHTML=`
+      <div class="admin-card-head">
+        <div style="width:52px;height:52px;"></div>
+        <div class="admin-card-info">
+          <div class="admin-card-name" style="color:${ROLE_COLORS[u.role]||'var(--text)'};">${u.name||'—'}</div>
+          <div class="admin-card-email">${u.email||'—'}</div>
+        </div>
+        <span class="badge-role b-${u.role||'athlete'}">${(u.role||'?').toUpperCase()}</span>
+      </div>
+      <div class="admin-card-stats">
+        <span><span class="status-dot ${u.status==='disabled'?'dot-disabled':'dot-active'}"></span>${u.status||'active'}</span>
+        <span>📍 ${u.network_stats?.city||'?'}</span>
+        <span>🔒 ${u.network_stats?.ip||'—'}</span>
+        ${u.coachId?'<span>🔗 Coach lié</span>':''}
+      </div>
+      <div style="margin-top:12px;font-size:0.8rem;color:var(--sub2);">${u.bio||''}</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button class="btn btn-ghost btn-xs btn-full" onclick="openAdminEditUser('${u.uid}')">✏️ Modifier</button>
+        <button class="btn btn-ghost btn-xs" onclick="viewUserProfile('${u.uid}')">👤</button>
+      </div>`;
+    card.querySelector('.admin-card-head div').replaceWith(av);
+    el.appendChild(card);
   });
 }
 
-// ============================================================
-// PAIRING CODE (Coach)
-// ============================================================
-let pairInterval = null;
-async function genPairCode() {
-  if (pairInterval) clearInterval(pairInterval);
-  const code = Math.random().toString(36).substring(2,8).toUpperCase();
-  const expiresAt = Date.now() + 60000;
-  await db.collection('pairing_codes').doc(code).set({ coachId: currentUser.uid, expiresAt });
-  await writeLog('liaison', `Code de liaison généré: ${code}`);
-  document.getElementById('pair-code-display').textContent = code.split('').join(' ');
-  let remaining = 60;
-  document.getElementById('pair-progress').style.width = '100%';
-  document.getElementById('pair-timer-label').textContent = '60s restantes';
-  pairInterval = setInterval(() => {
-    remaining--;
-    const pct = (remaining / 60) * 100;
-    document.getElementById('pair-progress').style.width = pct + '%';
-    document.getElementById('pair-timer-label').textContent = remaining + 's restantes';
-    if (remaining <= 0) {
-      clearInterval(pairInterval);
-      document.getElementById('pair-code-display').textContent = '— — — — — —';
-      document.getElementById('pair-timer-label').textContent = '';
-      db.collection('pairing_codes').doc(code).delete();
-    }
-  }, 1000);
-}
-
-// ============================================================
-// ADMIN — USERS
-// ============================================================
-function listenAdminUsers() {
-  const unsub = db.collection('users').onSnapshot(snap => {
-    const tbody = document.getElementById('admin-users-body');
-    tbody.innerHTML = '';
-    snap.forEach(doc => {
-      const u = doc.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><b>${u.name||'—'}</b></td>
-        <td><span class="role-badge role-${u.role||'athlete'}">${u.role||'athlete'}</span></td>
-        <td style="font-size:0.8rem; color:var(--sub)">${u.network_stats?.ip||'—'} · ${u.network_stats?.city||'—'}</td>
-        <td><span class="status-badge status-${u.status||'active'}">${u.status||'active'}</span></td>
-        <td><button class="btn-liquid btn-blue btn-sm" onclick="openAdminUser('${doc.id}')">Voir</button></td>`;
-      tbody.appendChild(tr);
-    });
-    // Also populate admin chat select
-    const sel = document.getElementById('admin-chat-select');
-    const prev = sel.value;
-    sel.innerHTML = '<option value="">— Sélectionner un utilisateur —</option>';
-    snap.forEach(doc => {
-      const opt = document.createElement('option');
-      opt.value = doc.id;
-      opt.textContent = doc.data().name + ' (' + (doc.data().role||'?') + ')';
-      sel.appendChild(opt);
-    });
-    if (prev) sel.value = prev;
-  });
-  unsubListeners.push(unsub);
-}
-
-let adminEditUid = null;
-async function openAdminUser(uid) {
-  adminEditUid = uid;
-  const snap = await db.collection('users').doc(uid).get();
-  const u = snap.data();
-  document.getElementById('admin-edit-name').value = u.name || '';
-  document.getElementById('admin-edit-email').value = u.email || '';
-  document.getElementById('admin-edit-role').value = u.role || 'athlete';
-  document.getElementById('admin-edit-weight').value = u.weight || '';
-  document.getElementById('admin-edit-height').value = u.height || '';
-  document.getElementById('admin-edit-level').value = u.level || 'Loisir';
-  const ns = u.network_stats || {};
-  document.getElementById('admin-edit-network').innerHTML = `<b>IP:</b> ${ns.ip||'—'} · <b>Ville:</b> ${ns.city||'—'} · <b>FAI:</b> ${ns.isp||'—'} · <b>Inscrit:</b> ${u.dateJoin?.toDate?u.dateJoin.toDate().toLocaleDateString('fr-FR'):'—'}`;
+async function openAdminEditUser(uid){
+  adminEditUid=uid;
+  const u=allAdminUsers.find(u=>u.uid===uid);
+  if(!u)return;
+  const body=document.getElementById('modal-admin-body');
+  body.innerHTML=`
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px;">
+      <div class="avatar av-lg" style="background:${avatarColor(u.name)};">${avatarInitial(u.name)}</div>
+      <div>
+        <div style="font-size:0.75rem;color:var(--sub);font-weight:700;">UID: ${u.uid}</div>
+        <div style="font-size:0.78rem;color:var(--sub2);">IP: ${u.network_stats?.ip||'—'} · ${u.network_stats?.city||'—'}</div>
+        <div style="font-size:0.78rem;color:var(--sub2);">Inscrit: ${u.dateJoin?.toDate?u.dateJoin.toDate().toLocaleDateString('fr-FR'):'—'}</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Pseudo</label><input type="text" id="ae-name" class="fi" value="${u.name||''}"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="text" id="ae-email" class="fi" value="${u.email||''}" disabled></div>
+    <div class="form-group"><label class="form-label">Rôle</label>
+      <select id="ae-role" class="fi"><option value="athlete" ${u.role==='athlete'?'selected':''}>Athlète</option><option value="coach" ${u.role==='coach'?'selected':''}>Coach</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select>
+    </div>
+    <div class="grid2">
+      <div class="form-group"><label class="form-label">Poids</label><input type="number" id="ae-weight" class="fi" value="${u.weight||''}"></div>
+      <div class="form-group"><label class="form-label">Taille</label><input type="number" id="ae-height" class="fi" value="${u.height||''}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Statut</label>
+      <select id="ae-status" class="fi"><option value="active" ${u.status!=='disabled'?'selected':''}>Actif</option><option value="disabled" ${u.status==='disabled'?'selected':''}>Désactivé</option></select>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-primary btn-sm" onclick="saveAdminUser()">ENREGISTRER</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmAction('admin-del-user')">SUPPRIMER</button>
+    </div>`;
   openModal('modal-admin-user');
 }
 
-async function saveAdminUserEdit() {
-  if (!adminEditUid) return;
+async function saveAdminUser(){
+  if(!adminEditUid)return;
   await db.collection('users').doc(adminEditUid).update({
-    name: document.getElementById('admin-edit-name').value,
-    role: document.getElementById('admin-edit-role').value,
-    weight: document.getElementById('admin-edit-weight').value,
-    height: document.getElementById('admin-edit-height').value,
-    level: document.getElementById('admin-edit-level').value
+    name:document.getElementById('ae-name').value,
+    role:document.getElementById('ae-role').value,
+    weight:document.getElementById('ae-weight').value||null,
+    height:document.getElementById('ae-height').value||null,
+    status:document.getElementById('ae-status').value
   });
-  await writeLog('modify', `Admin: profil utilisateur modifié`);
+  writeLog('modify',`Admin: user ${adminEditUid} modifié`);
   showToast('Modifications enregistrées ✓');
   closeModal('modal-admin-user');
 }
 
 // ============================================================
-// ADMIN MESSAGES
-// ============================================================
-let adminChatUnsub = null;
-function loadAdminChatUsers() {} // Users loaded by listenAdminUsers
-
-function loadAdminChat() {
-  const targetUid = document.getElementById('admin-chat-select').value;
-  if (!targetUid) return;
-  if (adminChatUnsub) adminChatUnsub();
-  const box = document.getElementById('chat-box-admin');
-  box.innerHTML = '';
-  adminChatUnsub = db.collection('chats').where('coachId','==',currentUser.uid).orderBy('date','asc').onSnapshot(snap => {
-    box.innerHTML = '';
-    snap.forEach(doc => {
-      const m = doc.data();
-      const isMe = m.sender === currentUser.uid;
-      const div = document.createElement('div');
-      div.className = 'msg ' + (isMe ? 'me' : 'them');
-      div.textContent = m.text;
-      box.appendChild(div);
-    });
-    box.scrollTop = box.scrollHeight;
-  });
-  unsubListeners.push(adminChatUnsub);
-}
-
-async function sendMsgAdmin() {
-  const txt = document.getElementById('chat-input-admin').value.trim();
-  const targetUid = document.getElementById('admin-chat-select').value;
-  if (!txt || !targetUid) return;
-  document.getElementById('chat-input-admin').value = '';
-  await db.collection('chats').add({
-    text: txt, sender: currentUser.uid, receiver: targetUid,
-    coachId: currentUser.uid, date: Date.now(), read: false
-  });
-}
-
-// ============================================================
 // LOGS
 // ============================================================
-let allLogs = [];
-function listenLogs() {
-  const unsub = db.collection('logs').orderBy('date','desc').limit(100).onSnapshot(snap => {
-    allLogs = [];
-    snap.forEach(doc => allLogs.push(doc.data()));
-    renderLogs(allLogs);
+let allLogs=[];
+function listenLogs(){
+  const unsub=db.collection('logs').orderBy('date','desc').limit(200).onSnapshot(snap=>{
+    allLogs=[];snap.forEach(doc=>allLogs.push(doc.data()));renderLogs();
   });
-  unsubListeners.push(unsub);
+  subs.push(unsub);
 }
-
-function filterLogs() {
-  const type = document.getElementById('log-filter-type').value;
-  const filtered = type ? allLogs.filter(l => l.type === type) : allLogs;
-  renderLogs(filtered);
-}
-
-function renderLogs(logs) {
-  const list = document.getElementById('logs-list');
-  if (!list) return;
-  list.innerHTML = '';
-  logs.forEach(l => {
-    const d = document.createElement('div');
-    d.className = `log-item log-${l.type||'modify'}`;
-    const date = l.date ? (l.date.toDate ? l.date.toDate() : new Date(l.date)) : new Date();
-    d.innerHTML = `<div class="log-time">${date.toLocaleString('fr-FR')} · <b>${l.type||'?'}</b></div><div class="log-desc">${l.description||'—'}</div>`;
-    list.appendChild(d);
+function renderLogs(){
+  const el=document.getElementById('logs-list');if(!el)return;
+  const tf=document.getElementById('log-type-filter')?.value||'';
+  const filtered=tf?allLogs.filter(l=>l.type===tf):allLogs;
+  if(filtered.length===0){el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-txt">Aucun log</div></div>';return;}
+  el.innerHTML='';
+  filtered.forEach(l=>{
+    const d=l.date?.toDate?l.date.toDate():new Date();
+    const div=document.createElement('div');div.className=`log-item log-${l.type||'modify'}`;
+    div.innerHTML=`<div class="log-lbl">${l.type||'?'} · ${d.toLocaleString('fr-FR')}</div><div style="font-weight:700;font-size:0.88rem;">${l.description||'—'}</div>`;
+    el.appendChild(div);
   });
 }
 
-async function writeLog(type, description, uid) {
-  try {
-    await db.collection('logs').add({
-      type, description, uid: uid || currentUser?.uid || '?',
-      date: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } catch(e) {}
+async function writeLog(type,description,uid){
+  try{await db.collection('logs').add({type,description,uid:uid||CU?.uid||'?',date:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){}
 }
 
 // ============================================================
-// MODAL / CONFIRM
+// DARK MODE
 // ============================================================
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
+let isDark=false;
+function toggleDark(){
+  isDark=!isDark;
+  document.body.classList.toggle('dark',isDark);
+  ['tgl-dark','tgl-dark-coa','tgl-dark-admin'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',isDark);});
 }
 
-let pendingAction = null;
-function confirmDeleteMsg(docId, boxId) {
-  pendingAction = { type: 'delete-msg', docId, boxId };
-  showConfirm('Supprimer ce message ?', '');
-}
+// ============================================================
+// MODALS & CONFIRM
+// ============================================================
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
+document.getElementById('confirm-bg').addEventListener('click',e=>{if(e.target===document.getElementById('confirm-bg'))closeConfirm();});
 
-function showConfirm(title, msg) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-modal').classList.add('open');
+let pendingConf=null;
+function confirmAction(type,extra){
+  pendingConf={type,extra};
+  const msgs={
+    'del-hist':['Supprimer la session ?','Action irréversible.'],
+    'delete-self':['Supprimer votre compte ?','Toutes vos données seront perdues définitivement.'],
+    'unlink-coach':['Dissocier votre coach ?',''],
+    'dissoc-ath':['Dissocier cet athlète ?','La liaison sera supprimée.'],
+    'admin-del-user':['Supprimer cet utilisateur ?','Irréversible.'],
+    'unlink-all':['Dissocier tous les athlètes ?','']
+  };
+  const [t,m]=msgs[type]||['Confirmer ?',''];
+  document.getElementById('conf-title').textContent=t;
+  document.getElementById('conf-msg').textContent=m;
+  document.getElementById('confirm-bg').classList.add('open');
 }
-
-function closeConfirm() {
-  document.getElementById('confirm-modal').classList.remove('open');
-  pendingAction = null;
-}
-
-async function executeConfirm() {
-  const a = pendingAction;
-  closeConfirm();
-  if (!a) return;
-  switch(a.type) {
-    case 'delete-msg':
-      await db.collection('chats').doc(a.docId).delete();
-      break;
-    case 'delete-history':
-      await db.collection('history').doc(a.id).delete();
-      await writeLog('delete', 'Session historique supprimée');
-      break;
-    case 'disable-self':
-      await db.collection('users').doc(currentUser.uid).update({ status: 'disabled' });
-      await writeLog('modify', `Compte désactivé: ${currentUser.name}`);
-      doSignOut();
-      break;
-    case 'delete-self':
-      await db.collection('users').doc(currentUser.uid).delete();
-      await writeLog('delete', `Compte supprimé: ${currentUser.name}`);
-      auth.currentUser.delete().catch(()=>{});
-      doSignOut();
-      break;
-    case 'unlink-all':
-      const snap = await db.collection('users').where('coachId','==',currentUser.uid).get();
-      const batch = db.batch();
-      snap.forEach(doc => batch.update(doc.ref, { coachId: null }));
-      await batch.commit();
-      await writeLog('liaison', 'Tous les athlètes dissociés');
-      showToast('Athlètes dissociés');
-      break;
-    case 'dissoc-athlete':
-      if (selectedAthlete) {
-        await db.collection('users').doc(selectedAthlete.uid).update({ coachId: null });
-        await writeLog('liaison', `Athlète dissocié: ${selectedAthlete.name}`);
-        closeModal('modal-ath-detail');
-        showToast('Athlète dissocié');
-      }
-      break;
-    case 'admin-disable-user':
-      if (adminEditUid) {
-        await db.collection('users').doc(adminEditUid).update({ status: 'disabled' });
-        await writeLog('modify', 'Admin: compte utilisateur désactivé');
-        closeModal('modal-admin-user');
-        showToast('Compte désactivé');
-      }
-      break;
-    case 'admin-delete-user':
-      if (adminEditUid) {
-        await db.collection('users').doc(adminEditUid).delete();
-        await writeLog('delete', 'Admin: compte utilisateur supprimé');
-        closeModal('modal-admin-user');
-        showToast('Compte supprimé');
-      }
-      break;
+function closeConfirm(){document.getElementById('confirm-bg').classList.remove('open');pendingConf=null;}
+async function execConfirm(){
+  const a=pendingConf;closeConfirm();if(!a)return;
+  switch(a.type){
+    case 'del-hist':await db.collection('history').doc(a.extra).delete();writeLog('delete','Session supprimée');break;
+    case 'delete-self':await db.collection('users').doc(CU.uid).delete();writeLog('delete',`Compte supprimé: ${CU.name}`);auth.currentUser.delete().catch(()=>{});doSignOut();break;
+    case 'unlink-coach':await unlinkCoach();break;
+    case 'dissoc-ath':if(selectedAth){await db.collection('users').doc(selectedAth.uid).update({coachId:null});writeLog('liaison',`Dissocié: ${selectedAth.name}`);closeModal('modal-ath-detail');showToast('Athlète dissocié');}break;
+    case 'admin-del-user':if(adminEditUid){await db.collection('users').doc(adminEditUid).delete();writeLog('delete',`Admin: user supprimé`);closeModal('modal-admin-user');showToast('Utilisateur supprimé');}break;
   }
 }
 
-function confirmAction(type) {
-  const msgs = {
-    'disable-self': ['Désactiver votre compte ?', 'Vous serez déconnecté.'],
-    'delete-self': ['Supprimer votre compte ?', 'Toutes vos données seront perdues.'],
-    'unlink-all': ['Dissocier tous les athlètes ?', 'Tous vos athlètes seront dissociés.'],
-    'dissoc-athlete': ['Dissocier cet athlète ?', 'La liaison sera supprimée.'],
-    'admin-disable-user': ['Désactiver ce compte ?', ''],
-    'admin-delete-user': ['Supprimer définitivement ?', 'Action irréversible.'],
-  };
-  pendingAction = { type };
-  const [title, msg] = msgs[type] || ['Confirmer ?', ''];
-  showConfirm(title, msg);
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer=null;
+function showToast(msg){
+  const el=document.getElementById('toast-el');
+  el.textContent=msg;el.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
 }
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
-});
-document.getElementById('confirm-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('confirm-modal')) closeConfirm();
-});
 </script>
 </body>
-</html>
