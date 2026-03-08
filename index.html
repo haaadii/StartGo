@@ -3,38 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chrono Neo</title>
+    <title>Chrono Aurora</title>
     <style>
         :root {
-            --bg: #f0f2f5; --glass: rgba(255, 255, 255, 0.7); --text: #0f172a;
-            --accent: #000; --sub: #64748b; --shadow: rgba(0,0,0,0.05);
-        }
-        [data-theme="dark"] {
-            --bg: #000; --glass: rgba(30, 41, 59, 0.7); --text: #f8fafc;
-            --accent: #fff; --sub: #94a3b8; --shadow: rgba(255,255,255,0.02);
-        }
-
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); color: var(--text);
-            display: flex; flex-direction: column; align-items: center; 
-            margin: 0; min-height: 100vh; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #22d3ee; /* Cyan électrique */
+            --text: #f8fafc;
+            --sub: #94a3b8;
         }
 
-        /* Header & Theme */
-        .top-bar { width: 100%; max-width: 400px; display: flex; justify-content: space-between; padding: 30px 20px; box-sizing: border-box; }
-        .theme-toggle { background: var(--glass); border: 1px solid var(--shadow); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--text); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Main Card */
-        .glass-card {
-            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            width: 90%; max-width: 380px; border-radius: 40px; padding: 40px 20px;
-            box-shadow: 0 20px 40px var(--shadow); border: 1px solid rgba(255,255,255,0.1);
-            text-align: center; position: relative; overflow: hidden;
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
         }
 
-        #badge { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--sub); margin-bottom: 20px; display: block; }
+        /* Barre d'état minimaliste */
+        .status-bar {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--sub);
+        }
 
+        /* Dashboard Principal */
+        .container {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Chrono énorme au centre */
+        .timer-zone {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        #badge {
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #time {
+            font-size: 6.5rem;
+            font-weight: 100;
+            letter-spacing: -6px;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Stats horizontales */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.55rem;
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Bouton Action */
+        #mainBtn {
+            width: 100%;
+            padding: 22px;
+            border-radius: 20px;
+            border: none;
+            background: var(--accent);
+            color: #000;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #mainBtn:active { transform: scale(0.96); }
+
+        /* Configuration cachée/discrète */
+        .config-zone {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--sub);
+            padding: 0 10px;
+        }
+
+        input[type=range] {
+            width: 100px;
+            accent-color: var(--accent);
+        }
+
+        /* Historique */
+        .history-zone {
+            margin-top: 10px;
+        }
+
+        .history-item {
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 8px;
+            padding: 15px 20px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .h-time { font-weight: 700; font-size: 1rem; }
+        .h-speed { color: var(--accent); font-weight: 800; font-size: 0.8rem; }
+
+        .btn-debug {
+            opacity: 0.2;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.5rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">
+        <span>ESP32-CORE: ON</span>
+        <span>Batt: 92%</span>
+    </div>
+
+    <div class="container">
+        
+        <div class="glass timer-zone">
+            <span id="badge">Ready</span>
+            <div id="time">0.00</div>
+            <div class="config-zone">
+                <span>Distance</span>
+                <input type="range" id="dist" min="5" max="100" value="10" oninput="document.getElementById('d-val').innerText=this.value">
+                <span><b id="d-val">10</b>m</span>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="glass stat-card">
+                <span class="stat-label">Réaction</span>
+                <span id="react" class="stat-value">0.00s</span>
+            </div>
+            <div class="glass stat-card">
+                <span class="stat-label">Vitesse</span>
+                <span id="speed" class="stat-value">0.0 <small style="font-size:0.6rem">km/h</small></span>
+            </div>
+        </div>
+
+        <button id="mainBtn" onclick="launch()">Démarrer</button>
+
+        <div class="history-zone" id="history">
+            </div>
+
+        <div style="text-align: center">
+            <button class="btn-debug" onclick="trigger('foot')">DEBUG: DÉCOLLAGE</button>
+            <button class="btn-debug" onclick="trigger('finish')">DEBUG: ARRIVÉE</button>
+        </div>
+    </div>
+
+    <script>
+        let state = "IDLE", startTime, timer;
+        const audio = new (window.AudioContext || window.webkitAudioContext)();
+
+        function beep(f, d) {
+            const o = audio.createOscillator(), g = audio.createGain();
+            o.connect(g); g.connect(audio.destination);
+            o.frequency.value = f; o.start(); setTimeout(() => o.stop(), d);
+        }
+
+        function launch() {
+            state = "WAIT";
+            document.getElementById('badge').innerText = "Focus...";
+            document.getElementById('mainBtn').style.opacity = "0.2";
+            
+            setTimeout(() => {
+                if(state !== "WAIT") return;
+                beep(1000, 300);
+                startTime = performance.now();
+                state = "RUN";
+                document.getElementById('badge').innerText = "Running";
+                timer = setInterval(() => {
+                    document.getElementById('time').innerText = ((performance.now()-startTime)/1000).toFixed(2);
+                }, 40);
+            }, 1500 + Math.random() * 2000);
+        }
+
+        function trigger(type) {
+            if(state !== "RUN") return;
+            if(type === 'foot') {
+                const r = (performance.now() - startTime)/1000;
+                document.getElementById('react').innerText = r.toFixed(2) + "s";
+            } else {
+                clearInterval(timer);
+                const t = parseFloat(document.getElementById('time').innerText);
+                const d = document.getElementById('dist').value;
+                const v = ((d / t) * 3.6).toFixed(1);
+                document.getElementById('speed').innerHTML = `${v} <small style="font-size:0.6rem">km/h</small>`;
+                addHistory(t, v);
+                reset();
+            }
+        }
+
+        function reset() {
+            state = "IDLE";
+            document.getElementById('badge').innerText = "Success";
+            document.getElementById('mainBtn').style.opacity = "1";
+        }
+
+        function addHistory(t, v) {
+            const h = document.getElementById('history');
+            const div = document.createElement('div');
+            div.className = 'history-item glass';
+            div.innerHTML = `<span class="h-time">${t}s</span> <span class="h-speed">${v} KM/H</span>`;
+            h.prepend(div);
+        }
+    </script>
+</body>
+</html>
         /* Timer Display */
         .display { margin: 20px 0; }
         #time { font-size: 6rem; font-weight: 200; letter-spacing: -4px; line-height: 1; }
