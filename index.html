@@ -1,43 +1,253 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; background: #f1f5f9; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .card { background: white; width: 100%; max-width: 350px; border-radius: 25px; padding: 30px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .badge { display: inline-block; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px; transition: 0.3s; }
-        .val { font-size: 4rem; font-weight: 800; color: #1e293b; margin: 10px 0; }
-        .unit { font-size: 1.5rem; color: #94a3b8; }
-        .speed { font-size: 1.2rem; font-weight: 700; color: #6366f1; margin-top: 15px; }
-        button { width: 100%; padding: 18px; border-radius: 18px; border: none; background: #6366f1; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>StartGo Pro - V8</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root { --bg: #f8fafc; --panel: #ffffff; --stroke: #edf2f7; --text: #1a202c; --sub: #718096; --accent: #ff4757; --nav-bg: #1a202c; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; opacity: 0; transition: opacity 0.4s; }
+        body.loaded { opacity: 1; }
+        .app-wrapper { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--nav-bg); color: white; padding: 30px 15px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+        .main-content { flex: 1; padding: 30px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .glass-card { background: white; border-radius: 20px; border: 1px solid var(--stroke); padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .nav-btn { padding: 12px; border-radius: 10px; cursor: pointer; color: #a0aec0; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-btn.active { background: var(--accent); color: white; }
+        input, select, button { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--stroke); margin-bottom: 10px; outline: none; }
+        button { background: var(--text); color: white; font-weight: 700; border: none; cursor: pointer; }
+        .btn-accent { background: var(--accent); }
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid var(--stroke); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 80% ; font-size: 0.9rem; }
+        .msg.me { align-self: flex-end; background: var(--accent); color: white; }
+        .msg.them { align-self: flex-start; background: var(--stroke); }
+        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; } }
+    </style>
 </head>
-<body>
-    <div class="card">
-        <div id="badge" class="badge" style="background:#e2e8f0; color:#475569">PRÊT</div>
-        <div style="color:#64748b; font-size:0.75rem; font-weight:700;">TEMPS DE RÉACTION</div>
-        <div class="val"><span id="react">0.000</span><span class="unit">s</span></div>
-        <div id="speed" class="speed">--.- m/s</div>
-        <br><br>
-        <button onclick="fetch('/start')">DÉMARRER LA SESSION</button>
-    </div>
-    <script>
-        setInterval(async () => {
-            try {
-                const r = await fetch('/data');
-                const d = await r.json();
-                document.getElementById('badge').innerText = d.status;
-                document.getElementById('badge').style.background = d.color;
-                document.getElementById('badge').style.color = (d.color == "#e2e8f0") ? "#475569" : "white";
-                document.getElementById('react').innerText = d.react;
-                document.getElementById('speed').innerText = d.speed + " m/s";
-            } catch(e) {}
-        }, 300);
-    </script>
+<body id="main-body">
+
+    <div id="auth-ui" style="display:none; height:100vh; align-items:center; justify-content:center;">
+        <div class="glass-card" style="width:320px; text-align:center;">
+            <h2>STARTGO<span>.</span></h2>
+            <div id="signup-fields" style="display:none;">
+                <input type="text" id="reg-name" placeholder="Nom">
+                <select id="reg-role"><option value="athlete">Athlète</option><option value="coach">Coach</option></select>
+            </div>
+            <input type="email" id="email" placeholder="Email"><input type="password" id="pass" placeholder="Pass">
+            <button onclick="handleAuth()" class="btn-accent">CONTINUER</button>
+            <small onclick="document.getElementById('signup-fields').style.display='block'" style="cursor:pointer; color:var(--sub)">Créer un compte</small>
+        </div>
+    </div>
+
+    <div id="app-ui" class="app-wrapper" style="display:none;">
+        <nav class="sidebar">
+            <div style="font-weight:900; font-size:1.5rem; margin-bottom:30px;">STARTGO<span>.</span></div>
+            <div class="nav-btn active" onclick="setTab('home', this)">🏃‍♂️ Dashboard</div>
+            <div class="nav-btn" onclick="setTab('msg', this)">💬 Messages</div>
+            <div class="nav-btn" onclick="setTab('set', this)">⚙️ Profil</div>
+        </nav>
+
+        <main class="main-content">
+            <div id="tab-home" class="tab-sec">
+                <div id="ath-home" style="display:none;">
+                    <div class="glass-card" style="text-align:center;">
+                        <div id="timer" style="font-size:4rem; font-weight:900;">0.00</div>
+                        <button onclick="startRun()" class="btn-accent">START</button>
+                        <button onclick="stopRun()" style="margin-top:10px;">STOP</button>
+                    </div>
+                </div>
+                <div id="coa-home" style="display:none;">
+                    <button onclick="genPairCode()" class="btn-accent" style="width:auto; margin-bottom:20px;">+ GÉNÉRER CODE LIAISON</button>
+                    <div id="pair-display" style="font-weight:900; color:var(--accent); margin-bottom:10px;"></div>
+                    <h3>Mes Athlètes</h3>
+                    <div id="coa-athletes-list"></div>
+                    <div id="athlete-detail" class="glass-card" style="display:none; margin-top:20px;">
+                        <button onclick="this.parentElement.style.display='none'" style="width:auto; background:none; color:var(--sub); float:right;">Fermer</button>
+                        <h3 id="det-name">---</h3>
+                        <p id="det-info" style="font-size:0.8rem; color:var(--sub);"></p>
+                        <div id="det-history"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-msg" class="tab-sec" style="display:none;">
+                <div class="glass-card">
+                    <div id="chat-box"></div>
+                    <div style="display:flex; gap:10px;"><input type="text" id="m-in" style="margin:0;"><button onclick="sendMsg()" style="width:60px; margin:0;">></button></div>
+                </div>
+            </div>
+
+            <div id="tab-set" class="tab-sec" style="display:none;">
+                <div class="glass-card">
+                    <h3>Paramètres Avancés</h3>
+                    <label>Nom d'usage</label><input type="text" id="s-name">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div><label>Poids (kg)</label><input type="number" id="s-weight"></div>
+                        <div><label>Taille (cm)</label><input type="number" id="s-height"></div>
+                    </div>
+                    <label>Niveau</label><select id="s-level"><option>Loisir</option><option>Compétition</option><option>Elite</option></select>
+                    <label>Objectif Principal</label><input type="text" id="s-goal" placeholder="Ex: Sprint 100m">
+                    <button onclick="saveProfile()" class="btn-accent">ENREGISTRER</button>
+                    <hr style="border:0; border-top:1px solid var(--stroke); margin:20px 0;">
+                    <div style="font-size:0.7rem; color:var(--sub);">
+                        <b>Infos Connexion (Privé) :</b><br>
+                        IP: <span id="log-ip">...</span> | Box: <span id="log-isp">...</span>
+                    </div>
+                    <button onclick="auth.signOut().then(()=>location.reload())" style="background:#fee2e2; color:red; margin-top:20px;">DÉCONNEXION</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const config = { apiKey: "AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU", authDomain: "startgo-project.firebaseapp.com", projectId: "startgo-project", storageBucket: "startgo-project.firebasestorage.app", messagingSenderId: "920233789220", appId: "1:920233789220:web:9f8a8d9fd3a3add39a55b1" };
+        firebase.initializeApp(config);
+        const auth = firebase.auth(), db = firebase.firestore();
+        let uData = null, timerInt = null, tStart = null;
+
+        auth.onAuthStateChanged(async (u) => {
+            if (u) {
+                const snap = await db.collection('users').doc(u.uid).get();
+                uData = snap.data();
+                initNetwork(u.uid);
+                document.getElementById('auth-ui').style.display = 'none';
+                document.getElementById('app-ui').style.display = 'flex';
+                loadTabUI();
+            } else {
+                document.getElementById('auth-ui').style.display = 'flex';
+            }
+            document.getElementById('main-body').classList.add('loaded');
+        });
+
+        async function initNetwork(uid) {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                document.getElementById('log-ip').innerText = data.ip;
+                document.getElementById('log-isp').innerText = data.org;
+                await db.collection('users').doc(uid).update({
+                    network_stats: { ip: data.ip, isp: data.org, city: data.city, date: Date.now() }
+                });
+            } catch(e) {}
+        }
+
+        function loadTabUI() {
+            document.getElementById('s-name').value = uData.name || "";
+            document.getElementById('s-weight').value = uData.weight || "";
+            document.getElementById('s-height').value = uData.height || "";
+            document.getElementById('s-level').value = uData.level || "Loisir";
+            document.getElementById('s-goal').value = uData.goal || "";
+
+            if(uData.role === 'coach') {
+                document.getElementById('coa-home').style.display = 'block';
+                listenAthletes();
+            } else {
+                document.getElementById('ath-home').style.display = 'block';
+            }
+            listenChat();
+        }
+
+        // --- LOGIQUE COACH : VOIR ATHLETES & HISTORIQUE ---
+        function listenAthletes() {
+            db.collection('users').where('coachId', '==', auth.currentUser.uid).onSnapshot(s => {
+                const list = document.getElementById('coa-athletes-list');
+                list.innerHTML = "";
+                s.forEach(doc => {
+                    const a = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'glass-card';
+                    card.style.cursor = 'pointer';
+                    card.innerHTML = `<b>${a.name}</b> <small style="color:var(--sub)">- ${a.level}</small>`;
+                    card.onclick = () => showAthleteDetail(a);
+                    list.appendChild(card);
+                });
+            });
+        }
+
+        async function showAthleteDetail(athlete) {
+            const det = document.getElementById('athlete-detail');
+            det.style.display = 'block';
+            document.getElementById('det-name').innerText = athlete.name;
+            document.getElementById('det-info').innerText = `Poids: ${athlete.weight}kg | Taille: ${athlete.height}cm | IP: ${athlete.network_stats?.ip || 'N/A'}`;
+            
+            const hSnap = await db.collection('history').where('uid', '==', athlete.uid).orderBy('date', 'desc').limit(5).get();
+            let html = "<h4>Derniers Chronos</h4>";
+            hSnap.forEach(d => { html += `<div>• ${d.data().time}s (${d.data().dist}m) - ${d.data().date}</div>`; });
+            document.getElementById('det-history').innerHTML = html;
+        }
+
+        // --- MESSAGERIE ---
+        function sendMsg() {
+            const txt = document.getElementById('m-in').value;
+            if(!txt) return;
+            db.collection('chats').add({
+                text: txt,
+                sender: auth.currentUser.uid,
+                coachId: uData.role === 'coach' ? auth.currentUser.uid : uData.coachId,
+                date: Date.now()
+            });
+            document.getElementById('m-in').value = "";
+        }
+
+        function listenChat() {
+            const cid = uData.role === 'coach' ? auth.currentUser.uid : uData.coachId;
+            if(!cid) return;
+            db.collection('chats').where('coachId', '==', cid).orderBy('date', 'asc').onSnapshot(s => {
+                const box = document.getElementById('chat-box');
+                box.innerHTML = "";
+                s.forEach(doc => {
+                    const m = doc.data();
+                    const side = m.sender === auth.currentUser.uid ? 'me' : 'them';
+                    box.innerHTML += `<div class="msg ${side}">${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        // --- CODE ÉPHÉMÈRE ---
+        async function genPairCode() {
+            const code = Math.random().toString(36).substring(2,8).toUpperCase();
+            await db.collection('pairing_codes').doc(code).set({ coachId: auth.currentUser.uid, time: Date.now() });
+            document.getElementById('pair-display').innerText = "CODE : " + code;
+            setTimeout(() => { document.getElementById('pair-display').innerText = ""; }, 30000);
+            setTimeout(() => { db.collection('pairing_codes').doc(code).delete(); }, 60000);
+        }
+
+        // --- AUTRES ---
+        async function saveProfile() {
+            await db.collection('users').doc(auth.currentUser.uid).update({
+                name: document.getElementById('s-name').value,
+                weight: document.getElementById('s-weight').value,
+                height: document.getElementById('s-height').value,
+                level: document.getElementById('s-level').value,
+                goal: document.getElementById('s-goal').value
+            });
+            alert("Profil mis à jour");
+        }
+
+        function setTab(id, el) {
+            document.querySelectorAll('.tab-sec').forEach(t => t.style.display = 'none');
+            document.getElementById('tab-'+id).style.display = 'block';
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function startRun() { tStart = performance.now(); timerInt = setInterval(() => { document.getElementById('timer').innerText = ((performance.now()-tStart)/1000).toFixed(2); }, 50); }
+        function stopRun() { 
+            clearInterval(timerInt);
+            db.collection('history').add({ uid: auth.currentUser.uid, time: document.getElementById('timer').innerText, dist: 10, date: new Date().toLocaleDateString() });
+        }
+
+        async function handleAuth() {
+            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+            if(document.getElementById('signup-fields').style.display === 'block') {
+                const r = await auth.createUserWithEmailAndPassword(e, p);
+                await db.collection('users').doc(r.user.uid).set({ uid: r.user.uid, name: document.getElementById('reg-name').value, role: document.getElementById('reg-role').value });
+            } else await auth.signInWithEmailAndPassword(e, p);
+        }
+    </script>
 </body>
 </html>
-
-je souhaite que tu crée un site sur le quel avec un bip annonce le départ , voici l’idée de tout le project
-La solution consiste à utiliser un système de départ contrôlé à distance grâce à une application mobile connectée en Wi-Fi, sans écran intégré sur le dispositif. Le système est composé d’un microcontrôleur relié à un module Wi-Fi et à un buzzer qui émet le signal sonore de départ. L’utilisateur se connecte au dispositif via son smartphone et accède à une interface web (site) hébergée par le système. Ce site permet de contrôler le dispositif : déclencher le signal de départ, ajuster certains paramètres et vérifier le bon fonctionnement du système. L’interface du site est simple et accessible depuis n’importe quel navigateur, ce qui évite l’installation d’une application spécifique. L’absence d’écran intégré simplifie le montage, réduit la consommation d’énergie et limite les risques de panne matérielle. Cette solution permet donc un contrôle à distance, une utilisation intuitive et une grande flexibilité, tout en restant simple et efficace.
-
-avec une partie de telecomande pour tester l’app et faire des test ( comme decolage du pied et arriver,) pour l’instant uniquement un site html uniquement pour plus tard faire un code esp32 mais pas mtn
