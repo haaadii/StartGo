@@ -3,336 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StartGo Pro - Ultimate Edition</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>StartGo - Liquid Precision Pro</title>
     <style>
         :root {
-            --bg: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.7);
-            --glass-stroke: rgba(255, 255, 255, 0.8);
-            --text: #0f172a;
+            --bg: #f0f2f5;
+            --glass: rgba(255, 255, 255, 0.5);
+            --glass-stroke: rgba(255, 255, 255, 0.7);
+            --text: #1e293b;
             --sub: #64748b;
             --accent: #ff4757;
         }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: radial-gradient(circle at top right, #eef2ff, #f8fafc);
-            color: var(--text); margin: 0; min-height: 100vh;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 50px;
         }
 
-        .glass {
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-stroke); border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-stroke);
+            border-radius: 40px; /* Plus arrondi et liquide */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
         }
 
-        /* --- AUTH --- */
-        #auth-section { display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .auth-card { width: 90%; max-width: 360px; padding: 40px; text-align: center; }
-        input, select, button { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; transition: 0.3s; }
-        button { background: var(--text); color: white; font-weight: 800; border: none; cursor: pointer; }
-        button:active { transform: scale(0.96); }
-        .btn-accent { background: var(--accent); }
+        header {
+            width: 90%; max-width: 450px; padding: 25px;
+            display: flex; justify-content: space-between; align-items: center; margin-top: 20px;
+        }
 
-        /* --- LAYOUT --- */
-        #athlete-view { display: none; padding: 20px; flex-direction: column; align-items: center; }
-        #coach-view { display: none; height: 100vh; grid-template-columns: 300px 1fr; }
-        .sidebar { background: rgba(255,255,255,0.5); padding: 30px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
-        .main-content { padding: 40px; overflow-y: auto; flex: 1; }
+        .logo { font-weight: 900; letter-spacing: -1px; font-size: 1.1rem; }
+        .status-pill { background: white; padding: 6px 12px; border-radius: 20px; font-size: 0.6rem; font-weight: 800; color: var(--accent); }
 
-        /* --- UI COMPONENTS --- */
-        .hero-timer { width: 100%; max-width: 450px; text-align: center; padding: 40px 20px; margin: 20px 0; }
-        #time { font-size: 6.5rem; font-weight: 900; letter-spacing: -5px; line-height: 1; margin: 10px 0; }
-        .label { font-size: 0.65rem; font-weight: 800; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
+        /* Main Display */
+        .hero {
+            width: 90%; max-width: 450px; margin-top: 15px; padding: 40px 20px; text-align: center;
+        }
+
+        #sessionName {
+            background: transparent; border: none; font-size: 1.1rem; font-weight: 700;
+            color: var(--text); text-align: center; margin-bottom: 5px; width: 100%; outline: none;
+        }
+
+        #time { font-size: 8rem; font-weight: 900; letter-spacing: -6px; line-height: 1; margin: 10px 0; }
+        .label { font-size: 0.6rem; font-weight: 800; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Stats Blocks */
+        .stats-grid {
+            width: 90%; max-width: 450px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;
+        }
+
+        .stat-card { padding: 25px; text-align: center; }
+        .val { font-size: 1.6rem; font-weight: 800; display: block; }
+        .unit { font-size: 0.7rem; color: var(--sub); margin-left: 2px; }
+
+        /* Remote Control Block */
+        .remote-control {
+            width: 90%; max-width: 450px; margin-top: 15px; padding: 20px;
+            display: flex; flex-direction: column; gap: 15px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .remote-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .ath-item { 
-            padding: 15px 20px; border-radius: 20px; background: white; margin-bottom: 10px; 
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid transparent;
+        .btn-remote {
+            background: white; border: 1px solid var(--glass-stroke); border-radius: 20px;
+            padding: 15px; font-size: 0.7rem; font-weight: 800; color: var(--text);
+            cursor: pointer; transition: 0.2s; text-transform: uppercase;
         }
-        .ath-item:hover { border-color: var(--accent); }
-        .del-btn { color: #cbd5e1; font-size: 1.2rem; cursor: pointer; padding: 5px; }
-        .del-btn:hover { color: var(--accent); }
+        .btn-remote:active { background: var(--text); color: white; transform: translateY(2px); }
 
-        .history-card { background: white; padding: 15px 20px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; }
-        .h-val { font-weight: 900; color: var(--accent); font-size: 1.1rem; }
+        /* Controls */
+        .controls { width: 90%; max-width: 450px; margin-top: 15px; padding: 30px; }
+        .input-group { margin-bottom: 20px; }
+        .input-header { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; color: var(--sub); margin-bottom: 10px; }
+        
+        input[type=range] { width: 100%; height: 6px; border-radius: 10px; appearance: none; background: rgba(0,0,0,0.05); outline: none; }
+        input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; background: var(--text); border-radius: 50%; cursor: pointer; }
 
-        .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 18px 25px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-left: 6px solid var(--accent); font-weight: 800; z-index: 10000; animation: slideIn 0.4s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        @media (max-width: 800px) {
-            #coach-view { grid-template-columns: 1fr; }
-            .sidebar { display: none; } /* On simplifie sur mobile pour le coach */
+        #mainBtn {
+            width: 100%; padding: 24px; border-radius: 30px; border: none;
+            background: var(--text); color: white; font-size: 1rem; font-weight: 800;
+            letter-spacing: 2px; cursor: pointer; transition: 0.3s;
         }
+        #mainBtn:active { transform: scale(0.95); background: var(--accent); }
+
+        /* History */
+        .history { width: 90%; max-width: 450px; margin-top: 30px; }
+        .h-item {
+            background: rgba(255, 255, 255, 0.4); margin-bottom: 12px; padding: 20px;
+            border-radius: 30px; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--glass-stroke);
+        }
+        .h-info input { border: none; background: transparent; font-weight: 800; color: var(--text); font-size: 1rem; width: 120px; }
+        .h-info span { font-size: 0.6rem; color: var(--sub); display: block; margin-top: 2px; }
+        .h-data { text-align: right; }
+        .h-time { font-size: 1.2rem; font-weight: 900; display: block; }
+        .h-speed { font-size: 0.75rem; color: var(--accent); font-weight: 800; }
+        .delete-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 1rem; margin-left: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-section">
-        <div class="glass auth-card">
-            <h1 style="font-weight: 900;">STARTGO<span style="color:var(--accent)">.</span></h1>
-            <div id="signup-box" style="display:none;">
-                <input type="text" id="reg-name" placeholder="Prénom Nom">
-                <select id="reg-role"><option value="athlete">Athlète</option><option value="coach">Coach</option></select>
-            </div>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="pass" placeholder="Mot de passe">
-            <button onclick="handleAuth()" class="btn-accent">CONTINUER</button>
-            <p onclick="toggleSignup()" style="font-size: 0.8rem; cursor: pointer; color: var(--sub); margin-top: 15px;">Changer de mode</p>
+    <header class="glass-panel">
+        <div class="logo">STARTGO<span style="color:var(--accent)">.</span></div>
+        <div id="status" class="status-pill">Ready</div>
+    </header>
+
+    <main class="hero glass-panel">
+        <input type="text" id="sessionName" value="SPRINT #1">
+        <div id="time">0.00</div>
+        <span class="label">secondes</span>
+    </main>
+
+    <div class="stats-grid">
+        <div class="stat-card glass-panel">
+            <span class="label">Réaction</span>
+            <span class="val"><span id="react">0.00</span><small class="unit">s</small></span>
+        </div>
+        <div class="stat-card glass-panel">
+            <span class="label">Vitesse</span>
+            <span class="val"><span id="speed">0.0</span><small class="unit">km/h</small></span>
         </div>
     </div>
 
-    <div id="athlete-view">
-        <div class="glass" style="width: 100%; max-width: 450px; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 900;">STARTGO<span style="color:var(--accent)">.</span></div>
-            <div id="status-pill" class="label" style="background:white; padding:6px 15px; border-radius:20px; color:var(--accent)">Pret</div>
+    <section class="remote-control glass-panel">
+        <span class="label" style="text-align: center;">Télécommande de simulation</span>
+        <div class="remote-btns">
+            <button class="btn-remote" onclick="sim('foot')">Décollage</button>
+            <button class="btn-remote" onclick="sim('finish')">Arrivée</button>
         </div>
+    </section>
 
-        <div id="run-container" style="width:100%; max-width:450px; display:none;">
-            <div class="glass hero-timer">
-                <div id="time">0.00</div>
-                <span class="label">secondes</span>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div class="glass" style="padding:20px; text-align:center;"><span class="label">Réaction</span><span style="display:block; font-weight:900;"><span id="react">0.00</span>s</span></div>
-                <div class="glass" style="padding:20px; text-align:center;"><span class="label">Vitesse</span><span style="display:block; font-weight:900;"><span id="speed">0.0</span>km/h</span></div>
-            </div>
-            <div class="glass" style="padding:20px; margin-bottom:15px; display:flex; gap:10px;">
-                <button onclick="trigger('foot')" style="background:#f1f5f9; color:var(--text); margin:0;">DÉCOLLAGE</button>
-                <button onclick="trigger('finish')" class="btn-accent" style="margin:0;">ARRIVÉE</button>
-            </div>
-            <div class="glass" style="padding:25px; text-align:center;">
-                <div style="display:flex; justify-content:space-between;" class="label"><span>Distance</span><span><b id="d-val">10</b>m</span></div>
-                <input type="range" id="dist" min="5" max="100" value="10" oninput="document.getElementById('d-val').innerText=this.value" style="width:100%; margin:15px 0;">
-                <button onclick="startRun()" id="mainBtn" style="padding:20px; font-size:1.1rem;">Lancer la session</button>
-            </div>
-            
-            <p class="label" style="margin-top:30px; margin-left:10px;">Mon Historique</p>
-            <div id="ath-history-list"></div>
+    <section class="controls glass-panel">
+        <div class="input-group">
+            <div class="input-header"><span>TRACK</span> <span><b id="d-val">10</b>m</span></div>
+            <input type="range" id="dist" min="5" max="100" value="10" oninput="document.getElementById('d-val').innerText=this.value">
         </div>
-
-        <div id="pairing-msg" class="glass hero-timer" style="display:none;">
-            <p class="label">Liaison requise</p>
-            <input type="text" id="c-code" placeholder="CODE COACH" style="text-align:center; text-transform:uppercase; margin-top:15px;">
-            <button class="btn-accent" onclick="linkCoach()">ACTIVER LA CONNEXION</button>
+        <div class="input-group">
+            <div class="input-header"><span>DELAY</span> <span><b id="w-val">3</b>s</span></div>
+            <input type="range" id="wait" min="1" max="10" value="3" oninput="document.getElementById('w-val').innerText=this.value">
         </div>
-        <button onclick="logout()" style="background:none; color:var(--sub); border:none; margin-top:20px;">Se déconnecter</button>
-    </div>
+        <button id="mainBtn" onclick="run()">Lancer la session</button>
+    </section>
 
-    <div id="coach-view">
-        <aside class="sidebar">
-            <h2 style="font-weight: 900;">STARTGO<span style="color:var(--accent)">.</span></h2>
-            
-            <div id="pending-section" style="display:none; margin-top:20px;">
-                <p class="label">Attente de validation</p>
-                <div id="pending-list"></div>
-            </div>
-
-            <p class="label" style="margin-top:30px;">Mes Athlètes</p>
-            <div id="active-list" style="flex:1;"></div>
-            <button onclick="logout()" style="background:#f1f5f9; color:var(--text);">DÉCONNEXION</button>
-        </aside>
-
-        <main class="main-content">
-            <header class="glass" style="display:flex; justify-content:space-between; align-items:center; padding:25px 35px;">
-                <h1 style="margin:0; font-weight:900;">Dashboard</h1>
-                <div style="text-align:right;">
-                    <button onclick="gen()" class="btn-accent" style="width:auto; padding:12px 25px;">+ CODE</button>
-                    <div id="display-code" style="display:none; font-weight:900; color:var(--accent); margin-top:5px;">----</div>
-                </div>
-            </header>
-
-            <section id="stats-zone" class="glass" style="display:none; margin-top:30px; padding:35px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                        <h2 id="view-name" style="margin:0; font-weight:900;">Analyse</h2>
-                        <p class="label">Vitesse max (km/h)</p>
-                    </div>
-                    <button id="remove-ath-btn" style="width:auto; background:#fee2e2; color:#ef4444; font-size:0.7rem; padding:8px 15px;">DISSOCIER L'ATHLÈTE</button>
-                </div>
-                <div style="height:300px; margin:20px 0;"><canvas id="chart"></canvas></div>
-                <h3 class="label" style="margin-top:40px;">Détails des courses</h3>
-                <div id="coach-history-feed"></div>
-            </section>
-        </main>
+    <div class="history" id="history-list">
+        <span class="label" style="margin-left: 15px; margin-bottom: 10px; display: block;">Sessions précédentes</span>
     </div>
 
     <script>
-        const config = {
-            apiKey: "AIzaSyDKvUUqhl9xIBFVuBDT35rbjkFxBxWX5ZU",
-            authDomain: "startgo-project.firebaseapp.com",
-            projectId: "startgo-project",
-            storageBucket: "startgo-project.firebasestorage.app",
-            messagingSenderId: "920233789220",
-            appId: "1:920233789220:web:9f8a8d9fd3a3add39a55b1"
+        let state = "IDLE", start, timer, logs = [];
+
+        window.onload = () => {
+            const saved = document.cookie.split('; ').find(r => r.startsWith('history='));
+            if (saved) {
+                logs = JSON.parse(decodeURIComponent(saved.split('=')[1]));
+                renderHistory();
+            }
         };
-        firebase.initializeApp(config);
-        const auth = firebase.auth(), db = firebase.firestore();
-        let isSignup = false, runState = "IDLE", start, timer, myChart = null;
 
-        function toggleSignup() { isSignup = !isSignup; document.getElementById('signup-box').style.display = isSignup ? 'block' : 'none'; }
-        
-        async function handleAuth() {
-            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-            try {
-                if(isSignup) {
-                    const r = await auth.createUserWithEmailAndPassword(e, p);
-                    await db.collection('users').doc(r.user.uid).set({ uid: r.user.uid, name: document.getElementById('reg-name').value, role: document.getElementById('reg-role').value, coachId: null, isValidated: false });
-                } else await auth.signInWithEmailAndPassword(e, p);
-            } catch(err) { alert(err.message); }
+        function beep(f, d) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.frequency.value = f; o.start(); setTimeout(() => o.stop(), d);
         }
 
-        auth.onAuthStateChanged(u => {
-            if(!u) return;
-            document.getElementById('auth-section').style.display = 'none';
-            db.collection('users').doc(u.uid).onSnapshot(doc => {
-                const data = doc.data();
-                if(data.role === 'coach') {
-                    document.getElementById('coach-view').style.display = 'grid';
-                    initCoach(u.uid);
-                } else {
-                    document.getElementById('athlete-view').style.display = 'flex';
-                    if(!data.coachId) { document.getElementById('pairing-msg').style.display = 'block'; document.getElementById('run-container').style.display = 'none'; }
-                    else { 
-                        document.getElementById('pairing-msg').style.display = 'none'; 
-                        document.getElementById('run-container').style.display = 'block'; 
-                        initAthleteHistory(u.uid);
-                    }
-                }
-            });
-        });
+        function run() {
+            state = "WAITING";
+            document.getElementById('status').innerText = "Attente...";
+            document.getElementById('mainBtn').disabled = true;
+            document.getElementById('mainBtn').style.opacity = "0.3";
 
-        // ATHLETE LOGIC
-        async function linkCoach() {
-            const c = document.getElementById('c-code').value.toUpperCase();
-            const s = await db.collection('pairing_codes').doc(c).get();
-            if(s.exists) {
-                await db.collection('users').doc(auth.currentUser.uid).update({ coachId: s.data().coachId, isValidated: false });
-                toast("Demande envoyée au coach !");
-            }
-        }
-
-        function startRun() {
-            runState = "WAITING"; document.getElementById('status-pill').innerText = "Attente...";
+            // Délai fixe + aléatoire 0-10s
+            const delay = (parseInt(document.getElementById('wait').value) * 1000) + (Math.random() * 10000);
+            
             setTimeout(() => {
-                if(runState !== "WAITING") return;
-                start = performance.now(); runState = "RUNNING";
-                document.getElementById('status-pill').innerText = "RUN !";
+                if(state !== "WAITING") return;
+                beep(880, 500);
+                start = performance.now();
+                state = "RUNNING";
+                document.getElementById('status').innerText = "Running";
                 timer = setInterval(() => {
-                    const t = (performance.now() - start)/1000;
-                    document.getElementById('time').innerText = t.toFixed(2);
+                    const now = (performance.now() - start) / 1000;
+                    document.getElementById('time').innerText = now.toFixed(2);
                     const d = document.getElementById('dist').value;
-                    document.getElementById('speed').innerText = ((d/t)*3.6).toFixed(1);
+                    document.getElementById('speed').innerText = ((d/now)*3.6).toFixed(1);
                 }, 40);
-            }, 2000 + Math.random()*3000);
+            }, delay);
         }
 
-        async function trigger(type) {
-            if(runState !== "RUNNING") return;
-            if(type === 'foot') document.getElementById('react').innerText = ((performance.now()-start)/1000).toFixed(2);
-            else {
+        function sim(type) {
+            if(state !== "RUNNING") return;
+            if(type === 'foot') {
+                document.getElementById('react').innerText = ((performance.now()-start)/1000).toFixed(2);
+            } else {
                 clearInterval(timer);
-                const u = auth.currentUser;
-                const p = (await db.collection('users').doc(u.uid).get()).data();
-                await db.collection('sessions').add({
-                    athleteId: u.uid, coachId: p.coachId, athleteName: p.name,
-                    time: document.getElementById('time').innerText, speed: document.getElementById('speed').innerText,
-                    reaction: document.getElementById('react').innerText, distance: document.getElementById('dist').value,
-                    date: firebase.firestore.Timestamp.now()
-                });
-                runState = "IDLE"; document.getElementById('status-pill').innerText = "Pret";
-                toast("Temps enregistré !");
+                const s = {
+                    id: Date.now(),
+                    n: document.getElementById('sessionName').value,
+                    t: document.getElementById('time').innerText,
+                    v: document.getElementById('speed').innerText,
+                    d: new Date().toLocaleDateString(),
+                    h: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                logs.unshift(s);
+                save(); renderHistory(); reset();
             }
         }
 
-        function initAthleteHistory(uid) {
-            db.collection('sessions').where('athleteId', '==', uid).orderBy('date', 'desc').limit(5).onSnapshot(s => {
-                const list = document.getElementById('ath-history-list');
-                list.innerHTML = "";
-                s.forEach(doc => {
-                    const data = doc.data();
-                    list.innerHTML += `<div class="history-card"><div><span class="label">${data.date.toDate().toLocaleDateString()}</span><br><b>${data.distance}m</b></div><div class="h-val">${data.speed} <small>km/h</small></div></div>`;
-                });
+        function reset() {
+            state = "IDLE";
+            document.getElementById('status').innerText = "Ready";
+            document.getElementById('mainBtn').disabled = false;
+            document.getElementById('mainBtn').style.opacity = "1";
+        }
+
+        function save() {
+            document.cookie = `history=${encodeURIComponent(JSON.stringify(logs.slice(0,15)))}; max-age=31536000; path=/`;
+        }
+
+        function updateLog(id, val) {
+            const l = logs.find(x => x.id === id);
+            if(l) { l.n = val; save(); }
+        }
+
+        function delLog(id) {
+            logs = logs.filter(x => x.id !== id);
+            save(); renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '<span class="label" style="margin-left: 15px; margin-bottom: 10px; display: block;">Sessions précédentes</span>';
+            logs.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'h-item';
+                div.innerHTML = `
+                    <div class="h-info">
+                        <input type="text" value="${s.n}" onchange="updateLog(${s.id}, this.value)">
+                        <span>${s.d} à ${s.h}</span>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="h-data">
+                            <span class="h-time">${s.t}s</span>
+                            <span class="h-speed">${s.v} km/h</span>
+                        </div>
+                        <button class="delete-btn" onclick="delLog(${s.id})">×</button>
+                    </div>
+                `;
+                list.appendChild(div);
             });
         }
-
-        // COACH LOGIC
-        function initCoach(id) {
-            db.collection('users').where('coachId', '==', id).onSnapshot(s => {
-                const pList = document.getElementById('pending-list'), aList = document.getElementById('active-list'), pSec = document.getElementById('pending-section');
-                let pendingCount = 0; pList.innerHTML = ""; aList.innerHTML = "";
-                
-                s.forEach(doc => {
-                    const u = doc.data();
-                    if(!u.isValidated) {
-                        pendingCount++;
-                        pList.innerHTML += `<div class="ath-item" onclick="val('${u.uid}')">${u.name} <span style="color:var(--accent)">✔</span></div>`;
-                    } else {
-                        const div = document.createElement('div'); div.className = "ath-item";
-                        div.innerHTML = `<span>${u.name}</span><span class="del-btn" onclick="dissociate('${u.uid}', event)">×</span>`;
-                        div.onclick = () => showStats(u);
-                        aList.appendChild(div);
-                    }
-                });
-                pSec.style.display = pendingCount > 0 ? 'block' : 'none';
-            });
-
-            db.collection('sessions').where('coachId', '==', id).where('date', '>', new Date()).onSnapshot(s => {
-                s.docChanges().forEach(c => { if(c.type === "added") toast(`Nouveau : ${c.doc.data().athleteName} (${c.doc.data().speed} km/h)`); });
-            });
-        }
-
-        async function val(uid) { await db.collection('users').doc(uid).update({ isValidated: true }); toast("Athlète validé !"); }
-        
-        async function dissociate(uid, e) {
-            e.stopPropagation();
-            if(confirm("Supprimer cet athlète de votre liste ?")) {
-                await db.collection('users').doc(uid).update({ coachId: null, isValidated: false });
-                document.getElementById('stats-zone').style.display = 'none';
-                toast("Athlète dissocié.");
-            }
-        }
-
-        async function gen() {
-            const c = Math.random().toString(36).substring(2,6).toUpperCase();
-            await db.collection('pairing_codes').doc(c).set({ coachId: auth.currentUser.uid });
-            document.getElementById('display-code').innerText = c; document.getElementById('display-code').style.display='block';
-        }
-
-        function showStats(u) {
-            document.getElementById('stats-zone').style.display = 'block';
-            document.getElementById('view-name').innerText = u.name;
-            document.getElementById('remove-ath-btn').onclick = (e) => dissociate(u.uid, e);
-
-            db.collection('sessions').where('athleteId', '==', u.uid).orderBy('date', 'desc').onSnapshot(snap => {
-                let d = []; snap.forEach(doc => d.push(doc.data()));
-                const hFeed = document.getElementById('coach-history-feed');
-                hFeed.innerHTML = "";
-                
-                d.forEach(s => {
-                    hFeed.innerHTML += `<div class="history-card"><div><b>${s.distance}m</b> - ${s.date.toDate().toLocaleDateString()}</div><div><span class="h-val">${s.speed}</span> km/h | <small>${s.reaction}s réac.</small></div></div>`;
-                });
-
-                const chartData = [...d].reverse();
-                const labels = chartData.map(i => i.date.toDate().toLocaleDateString());
-                const values = chartData.map(i => parseFloat(i.speed));
-                if(myChart) myChart.destroy();
-                myChart = new Chart(document.getElementById('chart'), {
-                    type: 'line',
-                    data: { labels, datasets: [{ label: 'Vitesse', data: values, borderColor: '#ff4757', tension: 0.4, fill: true, backgroundColor: 'rgba(255,71,87,0.05)', borderWidth: 4, pointRadius: 0 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { display: false } }, x: { grid: { display: false } } } }
-                });
-            });
-        }
-
-        function toast(m) {
-            const t = document.createElement('div'); t.className="toast"; t.innerText=m;
-            document.body.appendChild(t); setTimeout(() => { t.style.opacity="0"; setTimeout(()=>t.remove(), 400); }, 3000);
-        }
-        function logout() { auth.signOut().then(() => location.reload()); }
     </script>
 </body>
 </html>
