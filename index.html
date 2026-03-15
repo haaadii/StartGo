@@ -1002,24 +1002,34 @@ const BLE = {
 
   /* ── Connexion GATT (réutilisée pour la reconnexion auto) ── */
   async _doConnect() {
-    try {
-      BLE.server  = await BLE.device.gatt.connect();
-      const svc   = await BLE.server.getPrimaryService(BLE.SERVICE);
-      BLE.cmdChar = await svc.getCharacteristic(BLE.CMD);
-      BLE.evtChar = await svc.getCharacteristic(BLE.EVT);
-      // Éviter les doublons de listeners lors de reconnexion
-      BLE.evtChar.removeEventListener('characteristicvaluechanged', BLE._onEvent);
-      await BLE.evtChar.startNotifications();
-      BLE.evtChar.addEventListener('characteristicvaluechanged', BLE._onEvent);
-      BLE.connected = true;
-      BLE._disconnectCount = 0;
-      BLE._updateBtn();
-      // Envoyer un PING pour synchroniser le volume dès connexion
-      await BLE.send('PING');
-    } catch(e) {
-      BLE.connected = false;
-      BLE._updateBtn();
-      toast('Connexion GATT échouée : ' + e.message);
+    const MAX = 5;
+    for (let attempt = 1; attempt <= MAX; attempt++) {
+      try {
+        console.log('[BLE] GATT tentative ' + attempt + '/' + MAX);
+        BLE.server = await BLE.device.gatt.connect();
+        // Pause 500ms — Mac Chrome coupe parfois avant getPrimaryService
+        await new Promise(r => setTimeout(r, 500));
+        const svc   = await BLE.server.getPrimaryService(BLE.SERVICE);
+        BLE.cmdChar = await svc.getCharacteristic(BLE.CMD);
+        BLE.evtChar = await svc.getCharacteristic(BLE.EVT);
+        BLE.evtChar.removeEventListener('characteristicvaluechanged', BLE._onEvent);
+        await BLE.evtChar.startNotifications();
+        BLE.evtChar.addEventListener('characteristicvaluechanged', BLE._onEvent);
+        BLE.connected = true;
+        BLE._disconnectCount = 0;
+        BLE._updateBtn();
+        await BLE.send('PING');
+        return; // succès
+      } catch(e) {
+        console.warn('[BLE] Tentative ' + attempt + ' : ' + e.message);
+        if (attempt < MAX) {
+          await new Promise(r => setTimeout(r, 1500));
+        } else {
+          BLE.connected = false;
+          BLE._updateBtn();
+          toast('Connexion échouée après ' + MAX + ' tentatives');
+        }
+      }
     }
   },
 
