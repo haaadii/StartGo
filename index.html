@@ -25,9 +25,12 @@
   --gshadow:0 8px 32px rgba(59,111,240,0.12), 0 1px 0 rgba(255,255,255,0.9) inset;
   --gshadow-sm:0 3px 14px rgba(26,31,54,0.10), 0 1px 0 rgba(255,255,255,0.8) inset;
 }
-html,body{font-family:var(--font);background:#e8edf7;color:#1a1f36;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;}
-#bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-#bg::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#dde6f5 0%,#e8edf7 45%,#d6e0f0 100%);transition:background 0.4s;}
+html,body{font-family:var(--font);background:#e8edf7;color:#1a1f36;min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s;}
+body.dark{background:#000000 !important;color:#f2f2f2 !important;}
+body.dark #bg::before{background:#000000 !important;}
+body.dark #bg{background:#000000;}
+#bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;transition:background .25s;}
+#bg::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#dde6f5 0%,#e8edf7 45%,#d6e0f0 100%);transition:background 0.25s;}
 .orb{position:absolute;border-radius:50%;filter:blur(100px);animation:float ease-in-out infinite alternate;}
 .o1{width:700px;height:700px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(59,111,240,0.22) 0%,transparent 65%);animation-duration:22s;}
 .o2{width:600px;height:600px;top:30%;right:-150px;background:radial-gradient(circle,rgba(124,77,223,0.18) 0%,transparent 65%);animation-duration:28s;animation-delay:-8s;}
@@ -482,12 +485,12 @@ mark.hl{background:none;color:var(--blue);font-weight:900;}
         <div class="ctitle">Test Son ESP32</div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
           <div>
-            <div style="font-size:.86rem;font-weight:600;">Bip de départ</div>
+            <div style="font-size:.86rem;font-weight:600;">Son de test (0004)</div>
             <div style="font-size:.72rem;color:var(--sub);margin-top:2px;" id="test-bip-mode">Connecte l'ESP32 pour tester le son physique</div>
           </div>
           <button id="btn-test-bip" class="btn btn-ghost btn-sm" onclick="testBip()">
             <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><polygon points="5,3 19,12 5,21"/></svg>
-            Tester le bip
+            Tester le son
           </button>
         </div>
         <div id="test-bip-status" style="margin-top:8px;font-size:.75rem;color:var(--sub);min-height:16px;"></div>
@@ -633,9 +636,17 @@ const BLE = {
   EVT:     '1c95d5e3-d8f7-413a-bf3d-7a2e5d7be87e',
   device: null, cmd: null, evt: null,
   on: false, vol: 25,
+  _connecting: false,
 
   async connect() {
-    if (!navigator.bluetooth) { toast('Web Bluetooth non supporté — utilise Chrome Android'); return; }
+    if (BLE._connecting) return;
+    if (!navigator.bluetooth) {
+      toast('Web Bluetooth non supporté — utilise Chrome sur Android');
+      return;
+    }
+    BLE._connecting = true;
+    const btn = document.getElementById('ble-btn');
+    if (btn) { btn.textContent = 'Connexion...'; btn.disabled = true; }
     try {
       BLE.device = await navigator.bluetooth.requestDevice({
         filters: [{ name: 'StartGo-Pro' }],
@@ -651,51 +662,97 @@ const BLE = {
       BLE.on = true;
       BLE._ui();
       toast('ESP32 connecté ✓');
-    } catch(e) { if (e.name !== 'NotFoundError') toast('BLE : ' + e.message); }
+    } catch(e) {
+      if (e.name !== 'NotFoundError') toast('BLE : ' + e.message);
+      BLE._ui();
+    } finally {
+      BLE._connecting = false;
+      if (btn) btn.disabled = false;
+    }
   },
 
-  disconnect() { BLE.device?.gatt?.disconnect(); },
+  disconnect() {
+    try { BLE.device?.gatt?.disconnect(); } catch(e) {}
+  },
 
   _drop() {
     BLE.on = false; BLE.cmd = null; BLE.evt = null;
+    BLE._connecting = false;
     BLE._ui();
     toast('ESP32 déconnecté — mode simulation');
     if (tSt !== 'IDLE') resetTr();
   },
 
   async send(msg) {
-    if (!BLE.on || !BLE.cmd) return;
-    try { await BLE.cmd.writeValueWithoutResponse(new TextEncoder().encode(msg)); }
-    catch(e) { console.warn('BLE send:', e); }
+    if (!BLE.on || !BLE.cmd) return false;
+    try {
+      await BLE.cmd.writeValueWithoutResponse(new TextEncoder().encode(msg));
+      return true;
+    } catch(e) {
+      console.warn('[BLE send error]', e.message);
+      // Si la connexion est perdue silencieusement
+      if (e.name === 'NetworkError' || e.name === 'InvalidStateError') {
+        BLE._drop();
+      }
+      return false;
+    }
   },
 
   _rx(e) {
-    const msg = new TextDecoder().decode(e.target.value);
+    const msg = new TextDecoder().decode(e.target.value).trim();
     console.log('[BLE←]', msg);
+
     if (msg.startsWith('CONNECTED')) {
       const m = msg.match(/vol=(\d+)/);
       if (m) { BLE.vol = parseInt(m[1]); BLE._syncVol(); }
       return;
     }
-    if (msg === 'PHASE:WAIT') { tSt = 'WAIT'; setSP('WAIT','Concentration...'); return; }
-    if (msg === 'PHASE:ALEA') { tSt = 'ALEA'; setSP('ALEA','Prêt...'); return; }
+
+    // L'ESP32 confirme la séquence — on met à jour l'état JS
+    if (msg === 'PHASE:WAIT') {
+      tSt = 'WAIT';
+      setSP('WAIT', 'Concentration...');
+      return;
+    }
+    if (msg === 'PHASE:ALEA') {
+      tSt = 'ALEA';
+      setSP('ALEA', 'Prêt...');
+      return;
+    }
+
+    // BIP — démarrer le chrono JS
     if (msg.startsWith('BIP:')) {
       tBip = performance.now();
       tSt  = 'BIP';
-      setSP('BIP','Partez !');
+      setSP('BIP', 'Partez !');
       document.getElementById('trbtns').style.display = 'block';
       (function tick() {
         if (tSt !== 'BIP') return;
-        document.getElementById('rv').textContent = ((performance.now()-tBip)/1000).toFixed(3);
+        const el = document.getElementById('rv');
+        if (el) el.textContent = ((performance.now() - tBip) / 1000).toFixed(3);
         rafId = requestAnimationFrame(tick);
       })();
       return;
     }
-    if (msg === 'ABORTED')     { resetTr(); return; }
+
+    if (msg === 'ABORTED')     { if (tSt !== 'IDLE') resetTr(); return; }
     if (msg === 'FINISH_ACK')  { return; }
-    if (msg === 'TEST_BIP_OK') { return; }
-    if (msg === 'ERR:BUSY')    { toast('ESP32 occupé'); return; }
-    if (msg.startsWith('VOL_OK:')) { BLE.vol = parseInt(msg.split(':')[1]); BLE._syncVol(); return; }
+    if (msg === 'TEST_BIP_OK') {
+      const s = document.getElementById('test-bip-status');
+      if (s) s.textContent = '✓ Son joué sur l\'ESP32';
+      setTimeout(() => { if (s) s.textContent = ''; }, 1500);
+      return;
+    }
+    if (msg === 'ERR:BUSY') { toast('ESP32 occupé — attends la fin de la séquence'); return; }
+    if (msg.startsWith('VOL_OK:')) {
+      BLE.vol = parseInt(msg.split(':')[1]) || BLE.vol;
+      BLE._syncVol();
+      return;
+    }
+    if (msg.startsWith('PONG:')) {
+      console.log('[BLE] PONG reçu :', msg);
+      return;
+    }
   },
 
   async setVol(v) {
@@ -717,18 +774,22 @@ const BLE = {
     const tm  = document.getElementById('test-bip-mode');
     if (!btn) return;
     if (BLE.on) {
-      btn.textContent = '● Connecté';
+      btn.innerHTML = '<span style="color:var(--green)">●</span> Connecté';
       btn.style.cssText = 'background:var(--green-bg);color:var(--green);border:1px solid rgba(15,168,110,.3);';
       btn.onclick = () => BLE.disconnect();
-      if (tm) tm.textContent = 'ESP32 connecté — teste le son physique';
     } else {
-      btn.textContent = 'Connecter ESP32';
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg> Connecter ESP32';
       btn.style.cssText = '';
       btn.onclick = () => BLE.connect();
-      if (tm) tm.textContent = 'Connecte l\'ESP32 pour tester le son physique';
     }
-    if (lbl) { lbl.textContent = BLE.on ? 'Mode physique (BLE)' : 'Mode simulation'; lbl.style.color = BLE.on ? 'var(--green)' : 'var(--sub)'; }
-    if (vs)  vs.style.display = BLE.on ? 'block' : 'none';
+    if (lbl) {
+      lbl.textContent = BLE.on ? 'Mode physique (BLE)' : 'Mode simulation';
+      lbl.style.color = BLE.on ? 'var(--green)' : 'var(--sub)';
+    }
+    if (vs) vs.style.display = BLE.on ? 'block' : 'none';
+    if (tm) tm.textContent = BLE.on
+      ? 'ESP32 connecté — son 0004.mp3 au volume réglé'
+      : 'Connecte l\'ESP32 pour tester le son physique';
   }
 };
 
@@ -755,19 +816,22 @@ function _injectBleBtn() {
 
 /* ── Test bip ── */
 async function testBip() {
-  const btn = document.getElementById('btn-test-bip');
+  const btn    = document.getElementById('btn-test-bip');
   const status = document.getElementById('test-bip-status');
+  if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
   if (BLE.on) {
-    if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
     if (status) status.textContent = 'Envoi à l\'ESP32...';
-    await BLE.send('TEST_BIP');
-    if (status) status.textContent = '✓ Son joué sur l\'ESP32';
-    setTimeout(() => { if (btn) { btn.disabled = false; btn.style.opacity = ''; } if (status) status.textContent = ''; }, 1500);
+    const ok = await BLE.send('TEST_BIP');
+    if (!ok && status) status.textContent = 'Erreur envoi BLE';
+    // Le feedback "✓" est géré dans BLE._rx quand TEST_BIP_OK arrive
   } else {
     if (status) status.textContent = 'Mode simulation — son navigateur';
     playBip();
     setTimeout(() => { if (status) status.textContent = ''; }, 1500);
   }
+  setTimeout(() => {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+  }, 1600);
 }
 
 /* ════════════════════════════════════════════
@@ -777,68 +841,138 @@ let tSt='IDLE', tBip=null, tLift=null, rafId=null;
 
 async function startSeq() {
   if (tSt !== 'IDLE') return;
+
+  // Reset UI
   document.getElementById('trcfg').style.display    = 'none';
   document.getElementById('trrun').style.display    = 'block';
   document.getElementById('trres').style.display    = 'none';
   document.getElementById('trbtns').style.display   = 'none';
   document.getElementById('falsemsg').style.display = 'none';
-  const concMs = parseInt(document.getElementById('slc').value) * 1000;
+  document.getElementById('rv').textContent         = '0.000';
+  document.getElementById('cv').textContent         = '0.00';
+  document.getElementById('rv').style.opacity       = '1';
+
+  const concMs    = parseInt(document.getElementById('slc').value) * 1000;
+  const aleaMinMs = 1000;
+  const aleaMaxMs = 3000;
+
   if (BLE.on) {
-    setSP('WAIT','Envoi ESP32...');
-    await BLE.send('START:' + concMs + ':1000:3000');
+    // ── MODE PHYSIQUE ──────────────────────────────────────
+    setSP('WAIT', 'Envoi ESP32...');
+    const ok = await BLE.send('START:' + concMs + ':' + aleaMinMs + ':' + aleaMaxMs);
+    if (!ok) {
+      // Envoi échoué → fallback simulation
+      toast('Envoi BLE échoué — mode simulation');
+      _runSimulation(concMs, aleaMinMs, aleaMaxMs);
+    }
+    // tSt sera mis à jour par BLE._rx quand PHASE:WAIT arrive
+
   } else {
-    tSt = 'WAIT'; setSP('WAIT','Concentration...');
-    setTimeout(() => {
-      if (tSt !== 'WAIT') return;
-      tSt = 'ALEA'; setSP('ALEA','Prêt...');
-      const d = 1000 + Math.random() * 2000;
-      setTimeout(() => {
-        if (tSt !== 'ALEA') return;
-        playBip(); tBip = performance.now(); tSt = 'BIP'; setSP('BIP','Partez !');
-        document.getElementById('trbtns').style.display = 'block';
-        (function tick() { if (tSt !== 'BIP') return; document.getElementById('rv').textContent = ((performance.now()-tBip)/1000).toFixed(3); rafId = requestAnimationFrame(tick); })();
-      }, d);
-    }, concMs);
+    // ── MODE SIMULATION ────────────────────────────────────
+    _runSimulation(concMs, aleaMinMs, aleaMaxMs);
   }
 }
 
+function _runSimulation(concMs, aleaMinMs, aleaMaxMs) {
+  tSt = 'WAIT';
+  setSP('WAIT', 'Concentration...');
+  setTimeout(() => {
+    if (tSt !== 'WAIT') return;
+    tSt = 'ALEA';
+    setSP('ALEA', 'Prêt...');
+    const d = aleaMinMs + Math.random() * (aleaMaxMs - aleaMinMs);
+    setTimeout(() => {
+      if (tSt !== 'ALEA') return;
+      playBip();
+      tBip = performance.now();
+      tSt  = 'BIP';
+      setSP('BIP', 'Partez !');
+      document.getElementById('trbtns').style.display = 'block';
+      (function tick() {
+        if (tSt !== 'BIP') return;
+        const el = document.getElementById('rv');
+        if (el) el.textContent = ((performance.now() - tBip) / 1000).toFixed(3);
+        rafId = requestAnimationFrame(tick);
+      })();
+    }, d);
+  }, concMs);
+}
+
 function doLift() {
+  // Faux départ — bouton appuyé avant le BIP
   if (tSt === 'WAIT' || tSt === 'ALEA') {
-    cancelAnimationFrame(rafId); tSt = 'IDLE';
+    cancelAnimationFrame(rafId);
+    tSt = 'IDLE';
     document.getElementById('falsemsg').style.display = 'block';
-    setSP('FALSE','Faux départ');
-    if (BLE.on) BLE.send('ABORT'); else playFBip();
-    setTimeout(resetTr, 2500); return;
+    setSP('FALSE', 'Faux départ');
+    if (BLE.on) BLE.send('ABORT');
+    else playFBip();
+    setTimeout(resetTr, 2500);
+    return;
   }
   if (tSt !== 'BIP') return;
-  cancelAnimationFrame(rafId); tLift = performance.now();
-  document.getElementById('rv').textContent = ((tLift-tBip)/1000).toFixed(3);
-  document.getElementById('rv').style.opacity = '.5';
-  tSt = 'RUN'; setSP('RUN','En course');
-  (function tick() { if (tSt !== 'RUN') return; document.getElementById('cv').textContent = ((performance.now()-tLift)/1000).toFixed(2); rafId = requestAnimationFrame(tick); })();
+  // Pied levé après BIP → chrono course
+  cancelAnimationFrame(rafId);
+  tLift = performance.now();
+  const react = (tLift - tBip) / 1000;
+  const el = document.getElementById('rv');
+  if (el) { el.textContent = react.toFixed(3); el.style.opacity = '.5'; }
+  tSt = 'RUN';
+  setSP('RUN', 'En course');
+  (function tick() {
+    if (tSt !== 'RUN') return;
+    const cv = document.getElementById('cv');
+    if (cv) cv.textContent = ((performance.now() - tLift) / 1000).toFixed(2);
+    rafId = requestAnimationFrame(tick);
+  })();
 }
 
 async function doFinish() {
   if (tSt !== 'RUN') return;
   cancelAnimationFrame(rafId);
-  const react = (tLift-tBip)/1000, course = (performance.now()-tLift)/1000;
-  const dist = parseInt(document.getElementById('sld').value);
-  const kmh = ((dist/course)*3.6).toFixed(1);
+
+  const react  = (tLift - tBip) / 1000;
+  const course = (performance.now() - tLift) / 1000;
+  const dist   = parseInt(document.getElementById('sld').value) || 10;
+  const kmh    = course > 0 ? ((dist / course) * 3.6).toFixed(1) : '0.0';
   tSt = 'END';
+
   if (BLE.on) await BLE.send('FINISH');
-  document.getElementById('rr-react').textContent = react.toFixed(3)+'s';
-  document.getElementById('rr-time').textContent  = course.toFixed(2)+'s';
+
+  document.getElementById('rr-react').textContent = react.toFixed(3) + 's';
+  document.getElementById('rr-time').textContent  = course.toFixed(2) + 's';
   document.getElementById('rr-kmh').textContent   = kmh;
   document.getElementById('rr-dist').textContent  = dist;
   document.getElementById('trrun').style.display  = 'none';
   document.getElementById('trres').style.display  = 'block';
-  const nm = 'Session '+new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-  await db.collection('history').add({uid:CU.uid,name:nm,react:parseFloat(react.toFixed(3)),time:parseFloat(course.toFixed(2)),distance:dist,speed:parseFloat(kmh),mode:BLE.on?'physical':'simulation',date:firebase.firestore.FieldValue.serverTimestamp()});
-  wLog('session','Session '+course.toFixed(2)+'s react:'+react.toFixed(3)+'s');
+
+  const nm = 'Session ' + new Date().toLocaleDateString('fr-FR', {
+    day:'2-digit', month:'2-digit', year:'2-digit',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  try {
+    await db.collection('history').add({
+      uid:      CU.uid,
+      name:     nm,
+      react:    parseFloat(react.toFixed(3)),
+      time:     parseFloat(course.toFixed(2)),
+      distance: dist,
+      speed:    parseFloat(kmh),
+      mode:     BLE.on ? 'physical' : 'simulation',
+      date:     firebase.firestore.FieldValue.serverTimestamp()
+    });
+    wLog('session', 'Session ' + course.toFixed(2) + 's react:' + react.toFixed(3) + 's [' + (BLE.on ? 'ESP32' : 'sim') + ']');
+  } catch(e) {
+    console.error('Erreur sauvegarde:', e);
+    toast('Erreur sauvegarde Firebase');
+  }
 }
 
 function resetTr() {
-  tSt = 'IDLE'; cancelAnimationFrame(rafId);
+  tSt = 'IDLE';
+  cancelAnimationFrame(rafId);
+  if (BLE.on) BLE.send('FINISH');  // remet l'ESP32 en IDLE
   document.getElementById('trcfg').style.display    = 'block';
   document.getElementById('trrun').style.display    = 'none';
   document.getElementById('trres').style.display    = 'none';
@@ -846,13 +980,15 @@ function resetTr() {
   document.getElementById('rv').textContent         = '0.000';
   document.getElementById('rv').style.opacity       = '1';
   document.getElementById('falsemsg').style.display = 'none';
-  if (BLE.on) BLE.send('FINISH');
 }
 
-function setSP(s,lbl) {
-  const el=document.getElementById('spill'); el.textContent=lbl; el.className='sp';
-  const m={WAIT:'sp-wait',ALEA:'sp-alea',BIP:'sp-bip',RUN:'sp-run',FALSE:'sp-false'};
-  el.classList.add(m[s]||'sp-idle');
+function setSP(s, lbl) {
+  const el = document.getElementById('spill');
+  if (!el) return;
+  el.textContent = lbl;
+  el.className = 'sp';
+  const m = { WAIT:'sp-wait', ALEA:'sp-alea', BIP:'sp-bip', RUN:'sp-run', FALSE:'sp-false' };
+  el.classList.add(m[s] || 'sp-idle');
 }
 
 /* ── Audio simulation ── */
@@ -904,7 +1040,66 @@ let isDark=false;
 function applyDarkCookie(){const v=getCK('sg_dark');isDark=v===null?false:v==='1';applyDark(false);}
 function applyDark(save=true){
   const tgls=['tgld1','tgld2','tgld3'],root=document.documentElement,bg=document.getElementById('bg');
-  if(isDark){root.style.setProperty('--text','#f0f4ff');root.style.setProperty('--sub','rgba(240,244,255,0.55)');root.style.setProperty('--dim','rgba(240,244,255,0.30)');root.style.setProperty('--g0','rgba(255,255,255,0.04)');root.style.setProperty('--g1','rgba(255,255,255,0.08)');root.style.setProperty('--g2','rgba(255,255,255,0.13)');root.style.setProperty('--g3','rgba(255,255,255,0.20)');root.style.setProperty('--gb','rgba(255,255,255,0.16)');root.style.setProperty('--gb2','rgba(255,255,255,0.26)');root.style.setProperty('--gshine','rgba(255,255,255,0.45)');root.style.setProperty('--blur','blur(32px) saturate(160%)');root.style.setProperty('--blur2','blur(18px) saturate(140%)');root.style.setProperty('--gshadow','0 16px 48px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.14) inset');root.style.setProperty('--gshadow-sm','0 6px 24px rgba(0,0,0,0.40), 0 1px 0 rgba(255,255,255,0.10) inset');document.body.style.background='#0d1224';document.body.style.color='#f0f4ff';if(bg){bg.querySelectorAll('.orb').forEach((o,i)=>{const cols=['rgba(37,99,235,0.55)','rgba(79,32,160,0.50)','rgba(4,90,64,0.45)','rgba(120,20,20,0.35)'];o.style.background='radial-gradient(circle,'+cols[i%4]+' 0%,transparent 65%)';});}}else{root.style.setProperty('--text','#1a1f36');root.style.setProperty('--sub','rgba(26,31,54,0.52)');root.style.setProperty('--dim','rgba(26,31,54,0.32)');root.style.setProperty('--g0','rgba(255,255,255,0.45)');root.style.setProperty('--g1','rgba(255,255,255,0.62)');root.style.setProperty('--g2','rgba(255,255,255,0.78)');root.style.setProperty('--g3','rgba(255,255,255,0.92)');root.style.setProperty('--gb','rgba(26,31,54,0.10)');root.style.setProperty('--gb2','rgba(26,31,54,0.18)');root.style.setProperty('--gshine','rgba(255,255,255,0.95)');root.style.setProperty('--blur','blur(40px) saturate(200%)');root.style.setProperty('--blur2','blur(20px) saturate(160%)');root.style.setProperty('--gshadow','0 8px 32px rgba(59,111,240,0.12), 0 1px 0 rgba(255,255,255,0.9) inset');root.style.setProperty('--gshadow-sm','0 3px 14px rgba(26,31,54,0.10), 0 1px 0 rgba(255,255,255,0.8) inset');document.body.style.background='#e8edf7';document.body.style.color='#1a1f36';if(bg){bg.querySelectorAll('.orb').forEach((o,i)=>{const cols=['rgba(59,111,240,0.22)','rgba(124,77,223,0.18)','rgba(15,168,110,0.16)','rgba(59,111,240,0.14)'];o.style.background='radial-gradient(circle,'+cols[i%4]+' 0%,transparent 65%)';});}}
+  if(isDark){
+    // ── NOIR PUR ──────────────────────────────────────────────
+    root.style.setProperty('--text','#f2f2f2');
+    root.style.setProperty('--sub','rgba(242,242,242,0.50)');
+    root.style.setProperty('--dim','rgba(242,242,242,0.28)');
+    root.style.setProperty('--g0','rgba(255,255,255,0.02)');
+    root.style.setProperty('--g1','rgba(255,255,255,0.05)');
+    root.style.setProperty('--g2','rgba(255,255,255,0.09)');
+    root.style.setProperty('--g3','rgba(255,255,255,0.14)');
+    root.style.setProperty('--gb','rgba(255,255,255,0.10)');
+    root.style.setProperty('--gb2','rgba(255,255,255,0.18)');
+    root.style.setProperty('--gshine','rgba(255,255,255,0.18)');
+    root.style.setProperty('--blur','blur(24px) saturate(120%)');
+    root.style.setProperty('--blur2','blur(14px) saturate(110%)');
+    root.style.setProperty('--gshadow','0 20px 60px rgba(0,0,0,0.80), 0 1px 0 rgba(255,255,255,0.07) inset');
+    root.style.setProperty('--gshadow-sm','0 8px 28px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.05) inset');
+    // Fond noir absolu
+    document.body.style.background='#000000';
+    document.body.style.color='#f2f2f2';
+    document.body.classList.add('dark');
+    // Orbes très subtils sur fond noir
+    if(bg){
+      bg.style.opacity='1';
+      bg.querySelectorAll('.orb').forEach((o,i)=>{
+        const cols=['rgba(59,111,240,0.18)','rgba(124,77,223,0.14)','rgba(15,168,110,0.12)','rgba(59,111,240,0.10)'];
+        o.style.background='radial-gradient(circle,'+cols[i%4]+' 0%,transparent 65%)';
+        o.style.filter='blur(120px)';
+      });
+      // Fond du bg pur noir
+      const before=bg.querySelector('::before');
+      bg.style.setProperty('background','#000000');
+    }
+  } else {
+    // ── CLAIR ─────────────────────────────────────────────────
+    root.style.setProperty('--text','#1a1f36');
+    root.style.setProperty('--sub','rgba(26,31,54,0.52)');
+    root.style.setProperty('--dim','rgba(26,31,54,0.32)');
+    root.style.setProperty('--g0','rgba(255,255,255,0.45)');
+    root.style.setProperty('--g1','rgba(255,255,255,0.62)');
+    root.style.setProperty('--g2','rgba(255,255,255,0.78)');
+    root.style.setProperty('--g3','rgba(255,255,255,0.92)');
+    root.style.setProperty('--gb','rgba(26,31,54,0.10)');
+    root.style.setProperty('--gb2','rgba(26,31,54,0.18)');
+    root.style.setProperty('--gshine','rgba(255,255,255,0.95)');
+    root.style.setProperty('--blur','blur(40px) saturate(200%)');
+    root.style.setProperty('--blur2','blur(20px) saturate(160%)');
+    root.style.setProperty('--gshadow','0 8px 32px rgba(59,111,240,0.12), 0 1px 0 rgba(255,255,255,0.9) inset');
+    root.style.setProperty('--gshadow-sm','0 3px 14px rgba(26,31,54,0.10), 0 1px 0 rgba(255,255,255,0.8) inset');
+    document.body.style.background='#e8edf7';
+    document.body.style.color='#1a1f36';
+    document.body.classList.remove('dark');
+    if(bg){
+      bg.style.background='';
+      bg.querySelectorAll('.orb').forEach((o,i)=>{
+        const cols=['rgba(59,111,240,0.22)','rgba(124,77,223,0.18)','rgba(15,168,110,0.16)','rgba(59,111,240,0.14)'];
+        o.style.background='radial-gradient(circle,'+cols[i%4]+' 0%,transparent 65%)';
+        o.style.filter='blur(100px)';
+      });
+    }
+  }
   tgls.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',isDark);});
   if(save)setCK('sg_dark',isDark?'1':'0');
 }
